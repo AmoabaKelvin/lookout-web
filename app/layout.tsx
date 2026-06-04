@@ -47,20 +47,11 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "en_US",
-    images: [
-      {
-        url: "/og.png",
-        width: 1280,
-        height: 640,
-        alt: "Lookout — open-source server monitoring & alerts",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/og.png"],
   },
   robots: {
     index: true,
