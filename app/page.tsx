@@ -28,8 +28,45 @@ import {
 import { Button } from "@/components/ui/button"
 import { InstallCommand } from "@/components/install-command"
 import { LookoutLogo } from "@/components/lookout-logo"
+import {
+  GITHUB_URL,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site"
 
-const GITHUB_URL = "https://github.com/AmoabaKelvin/lookout"
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      inLanguage: "en",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE_URL}/#software`,
+      name: "Lookout",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Linux (amd64, arm64)",
+      description: SITE_DESCRIPTION,
+      url: SITE_URL,
+      downloadUrl: GITHUB_URL,
+      softwareHelp: GITHUB_URL,
+      license: `${GITHUB_URL}/blob/main/LICENSE`,
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      author: {
+        "@type": "Person",
+        name: "Kelvin Amoaba",
+        url: "https://github.com/AmoabaKelvin",
+      },
+    },
+  ],
+}
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -140,6 +177,10 @@ function ChannelPill({ icon, name }: { icon: IconSvgElement; name: string }) {
 export default function Page() {
   return (
     <div className="min-h-svh bg-[var(--lk-bg)] text-[var(--lk-ink)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ============ NAV ============ */}
       <nav className="sticky top-0 z-50 border-b border-[var(--lk-line)] bg-[color-mix(in_oklab,var(--lk-bg),transparent_14%)] backdrop-blur-md">
         <div className="mx-auto flex h-[66px] max-w-[1140px] items-center justify-between px-10 max-[920px]:px-6">
