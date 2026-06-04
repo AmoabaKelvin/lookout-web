@@ -1,8 +1,8 @@
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL
-  ? process.env.NEXT_PUBLIC_SITE_URL
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "https://lookout-web-bay.vercel.app"
+// Canonical production domain. Kept fixed so canonical/OG URLs always point at
+// the primary domain regardless of which deployment renders the page.
+// Override locally/per-env with NEXT_PUBLIC_SITE_URL if needed.
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lookout.kelvinamoaba.com"
 
 export const SITE_NAME = "Lookout"
 
