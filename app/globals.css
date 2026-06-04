@@ -127,3 +127,97 @@
     @apply font-sans;
     }
 }
+
+/* ============================================================
+   Lookout palette — colors taken from the Lookout.html design
+   (red accent variant) and mapped onto the shadcn theme tokens.
+   Mirrored in :root and .dark so the landing page always renders
+   in its intended light palette.
+   ============================================================ */
+:root,
+.dark {
+  --lk-bg: #fbfaf7;
+  --lk-surface: #ffffff;
+  --lk-ink: #15171a;
+  --lk-ink-2: #4b5159;
+  --lk-ink-3: #8a8f96;
+  --lk-line: #e9e6df;
+  --lk-line-2: #f1eee7;
+  --lk-accent: #e0493a;
+  --lk-accent-strong: color-mix(in oklab, var(--lk-accent), #000 24%);
+  --lk-accent-tint: color-mix(in oklab, var(--lk-accent), #fff 88%);
+  --lk-accent-tint-2: color-mix(in oklab, var(--lk-accent), #fff 78%);
+  --lk-accent-ink: color-mix(in oklab, var(--lk-accent), #000 76%);
+  --lk-amber: #e0922a;
+  --lk-red: #dc4b36;
+
+  /* shadcn token overrides */
+  --background: var(--lk-bg);
+  --foreground: var(--lk-ink);
+  --card: var(--lk-surface);
+  --card-foreground: var(--lk-ink);
+  --popover: var(--lk-surface);
+  --popover-foreground: var(--lk-ink);
+  --primary: var(--lk-accent);
+  --primary-foreground: var(--lk-accent-ink);
+  --secondary: var(--lk-line-2);
+  --secondary-foreground: var(--lk-ink);
+  --muted: var(--lk-line-2);
+  --muted-foreground: var(--lk-ink-3);
+  --accent: var(--lk-accent-tint);
+  --accent-foreground: var(--lk-accent-ink);
+  --border: var(--lk-line);
+  --input: var(--lk-line);
+  --ring: var(--lk-accent);
+}
+
+::selection {
+  background: var(--lk-accent-tint-2);
+  color: var(--lk-accent-ink);
+}
+
+/* eyes idle glance — runs until a real cursor takes over (see lookout-logo) */
+@keyframes lk-eye-glance {
+  0%, 15% { transform: translate(0, 0); }
+  24%, 41% { transform: translate(5px, -4px); }
+  50%, 67% { transform: translate(-6px, 3px); }
+  76%, 100% { transform: translate(0, 0); }
+}
+.lk-pupil {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lk-eye-glance 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lk-pupil { animation: none; }
+}
+
+/* channel marquee */
+@keyframes lk-marquee {
+  to { transform: translateX(-50%); }
+}
+.lk-marquee {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.lk-mq-row {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: lk-marquee 52s linear infinite;
+}
+.lk-mq-row.rev {
+  animation-duration: 64s;
+  animation-direction: reverse;
+}
+.lk-marquee:hover .lk-mq-row {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lk-mq-row {
+    animation: none;
+    flex-wrap: wrap;
+    width: auto;
+    justify-content: center;
+  }
+}
