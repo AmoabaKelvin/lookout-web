@@ -73,21 +73,30 @@ const FEATURES: { icon: IconSvgElement; title: string; body: string }[] = [
   },
 ]
 
-const STEPS: { icon: IconSvgElement; num: string; title: string; body: string }[] = [
+const STEPS: {
+  icon: IconSvgElement
+  anim: "download" | "spin" | "ring"
+  num: string
+  title: string
+  body: string
+}[] = [
   {
     icon: Download01Icon,
+    anim: "download",
     num: "Step 01",
     title: "Install",
     body: "One command drops a single static binary on any Linux box — no runtime, no dependencies, no account.",
   },
   {
     icon: Settings02Icon,
+    anim: "spin",
     num: "Step 02",
     title: "Point it at what matters",
     body: "Pick your thresholds — or keep the sensible defaults. Watch a host, a path, a port, or a container.",
   },
   {
     icon: Notification03Icon,
+    anim: "ring",
     num: "Step 03",
     title: "Get alerted",
     body: "Lookout only speaks up when a threshold is crossed — then once more when things recover.",
@@ -264,9 +273,14 @@ export default function Page() {
           <div className="relative mt-[72px] grid grid-cols-3 gap-12 max-[920px]:grid-cols-1 max-[920px]:gap-11">
             <div className="absolute top-7 right-[16.66%] left-[16.66%] z-0 h-0.5 [background-image:linear-gradient(90deg,var(--lk-line)_55%,transparent_0)] [background-size:13px_2px] max-[920px]:hidden" />
             {STEPS.map((s) => (
-              <div key={s.num} className="relative z-10 flex flex-col items-center text-center">
-                <div className="grid size-14 place-items-center rounded-full border-[1.5px] border-[var(--lk-line)] bg-[var(--lk-surface)] text-[var(--lk-accent-strong)] shadow-[0_0_0_7px_var(--lk-bg),0_10px_24px_-16px_rgba(20,22,26,0.4)]">
-                  <HugeiconsIcon icon={s.icon} size={24} strokeWidth={1.7} />
+              <div key={s.num} className="lk-step relative z-10 flex flex-col items-center text-center">
+                <div className="lk-badge grid size-14 place-items-center rounded-full border-[1.5px] border-[var(--lk-line)] bg-[var(--lk-surface)] text-[var(--lk-accent-strong)] shadow-[0_0_0_7px_var(--lk-bg),0_10px_24px_-16px_rgba(20,22,26,0.4)] transition-colors duration-200">
+                  <HugeiconsIcon
+                    icon={s.icon}
+                    size={24}
+                    strokeWidth={1.7}
+                    className={`lk-ic lk-ic-${s.anim}`}
+                  />
                 </div>
                 <span className="mt-6 font-mono text-[11.5px] font-medium tracking-[0.16em] text-[var(--lk-accent-strong)] uppercase">
                   {s.num}
