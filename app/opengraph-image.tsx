@@ -65,9 +65,9 @@ function Eye() {
 }
 
 export default async function Image() {
-  const [inter500, inter700] = await Promise.all([
-    loadFont("Inter", 500),
-    loadFont("Inter", 700),
+  const [geist500, geist700] = await Promise.all([
+    loadFont("Geist", 500),
+    loadFont("Geist", 700),
   ])
 
   const tagline = "Know the moment your server starts to struggle."
@@ -85,7 +85,7 @@ export default async function Image() {
           justifyContent: "center",
           backgroundColor: BG,
           color: INK,
-          fontFamily: "Inter",
+          fontFamily: "Geist",
           position: "relative",
           padding: 80,
         }}
@@ -203,8 +203,8 @@ export default async function Image() {
     {
       ...size,
       fonts: [
-        { name: "Inter", data: inter500, weight: 500, style: "normal" },
-        { name: "Inter", data: inter700, weight: 700, style: "normal" },
+        { name: "Geist", data: geist500, weight: 500, style: "normal" },
+        { name: "Geist", data: geist700, weight: 700, style: "normal" },
       ],
     }
   )

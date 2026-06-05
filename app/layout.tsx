@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
 import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from "@/lib/site"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
 const TITLE = SITE_TITLE
 const DESCRIPTION = SITE_DESCRIPTION
@@ -92,7 +92,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
+      className={cn("antialiased font-sans", geistSans.variable, fontMono.variable)}
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>
