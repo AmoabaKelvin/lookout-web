@@ -1,0 +1,34 @@
+---
+title: Introduction
+description: What is Lookout and how does it work?
+---
+
+
+Lookout is a lightweight, self-hosted server monitoring agent for Linux. It runs as a background daemon, continuously collecting system metrics and firing alerts to your preferred notification channel when thresholds are crossed — no SaaS, no cloud dependency, no per-seat pricing.
+
+## What it monitors
+
+| Resource | Metrics collected |
+|----------|-------------------|
+| **Memory** | Total, used, available, used % |
+| **Disk** | Total, used, free, used % per mount |
+| **Docker** | Container start, stop, crash, OOM events |
+
+## How it works
+
+Lookout is built around three internal components:
+
+**Collectors** read raw data from the kernel (`/proc/meminfo`, `/proc/mounts`) and the Docker daemon, then normalise it into typed metric samples. Each collector knows only about its own data source.
+
+**Evaluator** receives every metric sample and checks it against the configured threshold rules. It is stateful — it tracks whether an alert is already firing so it won't flood you with repeated notifications, and it sends a recovery message when a metric drops back below the threshold.
+
+**Alert Manager** dispatches notifications to the enabled channels (Discord, Google Chat, or the console). It enforces the re-notify window so you only hear about a problem again after a configurable quiet period.
+
+![How Lookout works — Collectors feed samples to the Evaluator which sends alerts to the Alert Manager](/docs/architecture.png)
+
+## Design goals
+
+- **Zero runtime dependencies** — a single static binary, no external database or broker.
+- **Minimal footprint** — runs as an unprivileged system user with a locked-down systemd unit.
+- **Simple configuration** — a single env-file you edit with any text editor.
+- **Sensible defaults** — works out of the box with no configuration; alerts print to the journal until you wire up a webhook.

@@ -16,8 +16,9 @@ function LookoutLogo({
   reversed = false,
   className,
   style,
+  as: As = "a",
   ...props
-}: React.ComponentProps<"a"> & { reversed?: boolean }) {
+}: React.ComponentProps<"a"> & { reversed?: boolean; as?: React.ElementType }) {
   const ref = React.useRef<HTMLAnchorElement>(null)
 
   React.useEffect(() => {
@@ -115,7 +116,7 @@ function LookoutLogo({
   // pupil so the pupil stays the dominant, correctly-pointing feature on
   // both light and dark backgrounds.
   return (
-    <a
+    <As
       ref={ref}
       aria-label="lookout home"
       className={cn(
@@ -130,7 +131,7 @@ function LookoutLogo({
       <Eye />
       <Eye />
       kout
-    </a>
+    </As>
   )
 }
 

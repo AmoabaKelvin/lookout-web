@@ -190,7 +190,7 @@ export default function Page() {
               ["Features", "#features"],
               ["How it works", "#how"],
               ["Alerts", "#alerts"],
-              ["Docs", GITHUB_URL],
+              ["Docs", "/docs"],
             ].map(([label, href]) => (
               <a
                 key={label}

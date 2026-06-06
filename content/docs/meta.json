@@ -1,0 +1,11 @@
+{
+  "title": "Lookout",
+  "pages": [
+    "index",
+    "installation",
+    "configuration",
+    "alerts",
+    "notifications",
+    "docker"
+  ]
+}

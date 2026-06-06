@@ -1,0 +1,85 @@
+---
+title: Alerts
+description: How Lookout evaluates metrics, fires alerts, and sends recoveries.
+---
+
+
+## How alerting works
+
+Every time a collector runs it produces a list of `MetricSample` values. Each sample flows through the **Evaluator**, which checks it against every configured rule.
+
+A rule has three parts:
+
+- A **matcher** — determines which metric samples the rule applies to.
+- A **threshold** — the numeric value above which the rule fires.
+- A **message** — the human-readable title sent in the notification.
+
+## Alert lifecycle
+
+![Alert lifecycle — firing path and recovery path](/docs/alert-lifecycle.png)
+
+This means:
+
+- You are notified **once** when a problem starts.
+- You are notified **again** only after `RENOTIFY_AFTER` seconds if the problem persists.
+- You are notified **when the problem clears** — so you always know when things are back to normal.
+
+## Built-in alert rules
+
+### High memory usage
+
+Fires when `memory.used_percent` exceeds `MEM_THRESHOLD` (default `85`).
+
+```
+🔴 FIRING — High memory usage
+Host: my-server
+Metric: memory.used_percent
+Value: 91.43% (threshold 85.00%)
+```
+
+### High disk usage
+
+Fires when any tracked mount's `disk.<name>.used_percent` exceeds `DISK_THRESHOLD` (default `85`).
+
+Lookout monitors these mounts by default: `/`, `/home`, `/var`, `/boot`.
+
+```
+🔴 FIRING — High disk usage
+Host: my-server
+Metric: disk.root.used_percent
+Value: 92.10% (threshold 85.00%)
+```
+
+## Recovery notifications
+
+When a firing alert drops back below its threshold, Lookout automatically sends a recovery:
+
+```
+✅ RESOLVED — High memory usage
+Host: my-server
+Metric: memory.used_percent
+Value: 74.21% (threshold 85.00%)
+```
+
+## Tuning thresholds
+
+Adjust `MEM_THRESHOLD` and `DISK_THRESHOLD` in `/etc/lookout/lookout.env`:
+
+```bash
+MEM_THRESHOLD=80    # alert at 80% memory usage
+DISK_THRESHOLD=90   # alert at 90% disk usage
+```
+
+Then restart:
+
+```bash
+sudo systemctl restart lookout
+```
+
+## Re-notify window
+
+By default Lookout re-alerts every **60 minutes** on a still-firing issue. To change this, set `RENOTIFY_AFTER` in seconds:
+
+```bash
+RENOTIFY_AFTER=1800   # re-alert every 30 minutes
+```
