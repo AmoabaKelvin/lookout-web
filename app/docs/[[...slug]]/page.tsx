@@ -31,7 +31,7 @@ export default async function Page({
         {title}
       </h1>
       <p className="mb-8 text-lg text-[var(--lk-ink-2)]">{description}</p>
-      <div className="prose prose-gray max-w-none dark:prose-invert">
+      <div className="prose prose-gray max-w-none">
         <Content />
       </div>
     </article>

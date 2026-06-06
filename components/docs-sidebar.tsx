@@ -36,7 +36,7 @@ export function DocsSidebar() {
               <Link
                 href={item.slug === "index" ? "/docs" : `/docs/${item.slug}`}
                 className={cn(
-                  "block px-3 py-1.5 text-sm transition-colors",
+                  "block rounded-lg px-3 py-1.5 text-sm transition-colors",
                   "text-[var(--lk-ink-2)] hover:text-[var(--lk-ink)]",
                   isActive(item.slug) &&
                     "font-medium text-[var(--lk-ink)] bg-[var(--lk-line-2)]",
@@ -59,7 +59,7 @@ export function DocsSidebar() {
               rel="noopener noreferrer"
               className="block px-3 py-1 text-sm text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
             >
-              {r.version} ↗
+              {r.version}
             </a>
           ))}
         </div>
