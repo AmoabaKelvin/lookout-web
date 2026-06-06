@@ -1,64 +1,60 @@
-import { source } from "@/lib/source";
-import {
-  DocsPage,
-  DocsBody,
-  DocsTitle,
-  DocsDescription,
-} from "fumadocs-ui/page";
-import { notFound } from "next/navigation";
-import defaultMdxComponents from "fumadocs-ui/mdx";
+import { notFound } from "next/navigation"
 
-const VERSION = "v0.0.1";
-const RELEASE_URL =
-  "https://github.com/AmoabaKelvin/lookout/releases/tag/v0.0.1";
+const DOCS_SLUGS = [
+  "index",
+  "installation",
+  "configuration",
+  "alerts",
+  "notifications",
+  "docker",
+] as const
 
 export default async function Page({
   params,
 }: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>
 }) {
-  const { slug } = await params;
-  const page = source.getPage(slug);
-  if (!page) notFound();
+  const { slug } = await params
+  const pageSlug = slug?.join("/") || "index"
 
-  const MDX = page.data.body;
+  if (!(DOCS_SLUGS as readonly string[]).includes(pageSlug)) notFound()
+
+  const {
+    default: Content,
+    title,
+    description,
+  } = await import(`@/content/docs/${pageSlug}.mdx`)
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <a
-        href={RELEASE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-2 rounded-full border border-fd-border bg-fd-muted px-3 py-1 text-xs font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground"
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-fd-muted-foreground/50" />
-        {VERSION}
-        <span className="opacity-60">— release notes ↗</span>
-      </a>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <DocsBody>
-        <MDX components={{ ...defaultMdxComponents }} />
-      </DocsBody>
-    </DocsPage>
-  );
+    <article>
+      <h1 className="mb-2 text-3xl font-bold tracking-tight text-[var(--lk-ink)]">
+        {title}
+      </h1>
+      <p className="mb-8 text-lg text-[var(--lk-ink-2)]">{description}</p>
+      <div className="prose prose-gray max-w-none dark:prose-invert">
+        <Content />
+      </div>
+    </article>
+  )
 }
 
-export async function generateStaticParams() {
-  return source.generateParams();
+export function generateStaticParams() {
+  return DOCS_SLUGS.map((s) => ({ slug: s === "index" ? undefined : [s] }))
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>
 }) {
-  const { slug } = await params;
-  const page = source.getPage(slug);
-  if (!page) notFound();
+  const { slug } = await params
+  const pageSlug = slug?.join("/") || "index"
 
-  return {
-    title: page.data.title,
-    description: page.data.description,
-  };
+  if (!(DOCS_SLUGS as readonly string[]).includes(pageSlug)) notFound()
+
+  const { title, description } = await import(`@/content/docs/${pageSlug}.mdx`)
+
+  return { title, description }
 }
+
+export const dynamicParams = false

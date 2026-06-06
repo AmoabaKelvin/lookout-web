@@ -1,8 +1,5 @@
----
-title: Introduction
-description: What is Lookout and how does it work?
----
-
+export const title = "Introduction"
+export const description = "What is Lookout and how does it work?"
 
 Lookout is a lightweight, self-hosted server monitoring agent for Linux. It runs as a background daemon, continuously collecting system metrics and firing alerts to your preferred notification channel when thresholds are crossed — no SaaS, no cloud dependency, no per-seat pricing.
 
@@ -26,9 +23,3 @@ Lookout is built around three internal components:
 
 ![How Lookout works — Collectors feed samples to the Evaluator which sends alerts to the Alert Manager](/docs/architecture.png)
 
-## Design goals
-
-- **Zero runtime dependencies** — a single static binary, no external database or broker.
-- **Minimal footprint** — runs as an unprivileged system user with a locked-down systemd unit.
-- **Simple configuration** — a single env-file you edit with any text editor.
-- **Sensible defaults** — works out of the box with no configuration; alerts print to the journal until you wire up a webhook.

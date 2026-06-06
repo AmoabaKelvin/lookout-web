@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { InstallCommand } from "@/components/install-command"
 import { LookoutLogo } from "@/components/lookout-logo"
+import { SiteNav } from "@/components/site-nav"
 import {
   GITHUB_URL,
   SITE_DESCRIPTION,
@@ -181,42 +182,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* ============ NAV ============ */}
-      <nav className="sticky top-0 z-50 border-b border-[var(--lk-line)] bg-[color-mix(in_oklab,var(--lk-bg),transparent_14%)] backdrop-blur-md">
-        <div className="mx-auto flex h-[66px] max-w-[1140px] items-center justify-between px-10 max-[920px]:px-6">
-          <LookoutLogo href="#install" />
-          <div className="flex items-center gap-[30px] max-[920px]:hidden">
-            {[
-              ["Features", "#features"],
-              ["How it works", "#how"],
-              ["Alerts", "#alerts"],
-              ["Docs", "/docs"],
-            ].map(([label, href]) => (
-              <a
-                key={label}
-                href={href}
-                className="text-[15px] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              render={<a href={GITHUB_URL} />}
-              nativeButton={false}
-              className="max-[560px]:hidden"
-            >
-              <HugeiconsIcon icon={Github01Icon} size={17} />
-              Star
-            </Button>
-            <Button render={<a href="#install" />} nativeButton={false}>
-              Install
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <SiteNav logoHref="#install" />
 
       {/* ============ HERO (minimal) ============ */}
       <header
