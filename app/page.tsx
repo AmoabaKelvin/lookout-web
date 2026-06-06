@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   Activity01Icon,
@@ -368,7 +369,7 @@ export default function Page() {
             </Button>
             <Button
               variant="outline"
-              render={<a href={GITHUB_URL} />}
+              render={<Link href="/docs" />}
               nativeButton={false}
               className="border-white/20 bg-transparent text-white hover:border-white/35 hover:bg-white/[0.07] hover:text-white dark:border-white/20 dark:bg-transparent dark:hover:bg-white/[0.07]"
             >
@@ -401,7 +402,7 @@ export default function Page() {
               {
                 head: "Resources",
                 links: [
-                  ["Documentation", GITHUB_URL],
+                  ["Documentation", "/docs"],
                   ["Releases", `${GITHUB_URL}/releases`],
                   ["Issues", `${GITHUB_URL}/issues`],
                 ],
@@ -420,16 +421,19 @@ export default function Page() {
                   {col.head}
                 </h4>
                 <ul className="flex flex-col gap-[11px]">
-                  {col.links.map(([label, href]) => (
-                    <li key={label}>
-                      <a
-                        href={href}
-                        className="text-[0.95rem] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-                      >
-                        {label}
-                      </a>
-                    </li>
-                  ))}
+                  {col.links.map(([label, href]) => {
+                    const Component = href.startsWith("/") ? Link : "a"
+                    return (
+                      <li key={label}>
+                        <Component
+                          href={href}
+                          className="text-[0.95rem] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
+                        >
+                          {label}
+                        </Component>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             ))}

@@ -9,21 +9,21 @@ const DOCS_SLUGS = [
   "docker",
 ] as const
 
+async function loadDoc(slug: string[] | undefined) {
+  const pageSlug = slug?.join("/") || "index"
+
+  if (!(DOCS_SLUGS as readonly string[]).includes(pageSlug)) notFound()
+
+  return import(`@/content/docs/${pageSlug}.mdx`)
+}
+
 export default async function Page({
   params,
 }: {
   params: Promise<{ slug?: string[] }>
 }) {
   const { slug } = await params
-  const pageSlug = slug?.join("/") || "index"
-
-  if (!(DOCS_SLUGS as readonly string[]).includes(pageSlug)) notFound()
-
-  const {
-    default: Content,
-    title,
-    description,
-  } = await import(`@/content/docs/${pageSlug}.mdx`)
+  const { default: Content, title, description } = await loadDoc(slug)
 
   return (
     <article>
@@ -48,11 +48,7 @@ export async function generateMetadata({
   params: Promise<{ slug?: string[] }>
 }) {
   const { slug } = await params
-  const pageSlug = slug?.join("/") || "index"
-
-  if (!(DOCS_SLUGS as readonly string[]).includes(pageSlug)) notFound()
-
-  const { title, description } = await import(`@/content/docs/${pageSlug}.mdx`)
+  const { title, description } = await loadDoc(slug)
 
   return { title, description }
 }

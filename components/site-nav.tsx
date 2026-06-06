@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Github01Icon } from "@hugeicons/core-free-icons"
 
@@ -19,15 +20,18 @@ export function SiteNav({ logoHref = "/" }: { logoHref?: string }) {
       <div className="mx-auto flex h-[66px] max-w-[1140px] items-center justify-between px-10 max-[920px]:px-6">
         <LookoutLogo href={logoHref} />
         <div className="flex items-center gap-[30px] max-[920px]:hidden">
-          {links.map(([label, href]) => (
-            <a
-              key={label}
-              href={href}
-              className="text-[15px] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-            >
-              {label}
-            </a>
-          ))}
+          {links.map(([label, href]) => {
+            const Component = href.startsWith("/") ? Link : "a"
+            return (
+              <Component
+                key={label}
+                href={href}
+                className="text-[15px] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
+              >
+                {label}
+              </Component>
+            )
+          })}
         </div>
         <div className="flex items-center gap-3">
           <Button
