@@ -1,0 +1,87 @@
+export const title = "Notifications"
+export const description = "Configure Discord, Google Chat, or console alerting."
+
+Lookout supports multiple notification channels simultaneously. All enabled channels receive every alert and recovery message.
+
+## Discord
+
+1. Open your Discord server settings → **Integrations** → **Webhooks** → **New Webhook**.
+2. Choose the channel you want alerts in, copy the webhook URL.
+3. Add it to `/etc/lookout/lookout.env`:
+
+```bash
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/123456789/your-token-here
+```
+
+4. Restart: `sudo systemctl restart lookout`
+
+### Test your webhook
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"content": "lookout test message"}' \
+  "https://discord.com/api/webhooks/123456789/your-token-here"
+```
+
+## Google Chat
+
+1. Open your Google Chat space → **Apps & Integrations** → **Manage webhooks** → **Add webhook**.
+2. Give it a name (e.g. "Lookout"), copy the webhook URL.
+3. Add it to `/etc/lookout/lookout.env`:
+
+```bash
+GOOGLE_CHAT_WEBHOOK_URL=https://chat.googleapis.com/v1/spaces/SPACE/messages?key=KEY&token=TOKEN
+```
+
+4. Restart: `sudo systemctl restart lookout`
+
+### Test your webhook
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"text": "lookout test message"}' \
+  "https://chat.googleapis.com/v1/spaces/SPACE/messages?key=KEY&token=TOKEN"
+```
+
+## Console (default)
+
+If no webhook URL is configured, Lookout falls back to printing alerts to stdout. They appear in the systemd journal:
+
+```bash
+journalctl -u lookout -f
+```
+
+Console output looks like:
+
+```
+🔴 FIRING — High memory usage
+Host: my-server
+Metric: memory.used_percent
+Value: 91.43% (threshold 85.00%)
+```
+
+The console notifier is useful for testing and for environments where you forward journal logs to an external system (Datadog, Loki, etc.).
+
+## Using multiple channels
+
+Set both variables to fan out to all channels:
+
+```bash
+GOOGLE_CHAT_WEBHOOK_URL=https://chat.googleapis.com/...
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+```
+
+## Alert format
+
+Every notification — regardless of channel — uses the same format:
+
+```
+{status} — {title}
+Host: {hostname}
+Metric: {metric_name}
+Value: {current_value} (threshold {threshold_value})
+```
+
+`{status}` is either `🔴 FIRING` or `✅ RESOLVED`.

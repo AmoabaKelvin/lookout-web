@@ -1,0 +1,89 @@
+export const title = "Configuration"
+export const description = "All environment variables Lookout reads from /etc/lookout/lookout.env."
+
+Lookout is configured entirely through environment variables, read from `/etc/lookout/lookout.env` at startup. Edit the file and restart the service to apply changes:
+
+```bash
+sudo nano /etc/lookout/lookout.env
+sudo systemctl restart lookout
+```
+
+The file is owned by the `lookout` user and has mode `600` — only root and the service itself can read it.
+
+## Notification destinations
+
+Set at least one webhook URL, or alerts will only print to the journal.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOOGLE_CHAT_WEBHOOK_URL` | *(unset)* | Incoming webhook URL for a Google Chat space |
+| `DISCORD_WEBHOOK_URL` | *(unset)* | Incoming webhook URL for a Discord channel |
+
+You can set both; Lookout will deliver to all configured destinations.
+
+## Thresholds
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MEM_THRESHOLD` | `85` | Memory used % that triggers a high-memory alert |
+| `DISK_THRESHOLD` | `85` | Disk used % that triggers a high-disk alert |
+
+Values are plain integers representing a percentage (0–100).
+
+## Timing
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `COLLECTION_INTERVAL` | `30` | How often (in **seconds**) collectors run |
+| `RENOTIFY_AFTER` | `3600` | How long (in **seconds**) to wait before re-alerting on a still-firing issue |
+
+## Heartbeat
+
+An optional external heartbeat keeps a third-party dead-man's-switch service informed that Lookout is alive.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HEARTBEAT_URL` | *(unset)* | URL to ping periodically (e.g. a healthchecks.io URL) |
+| `HEARTBEAT_INTERVAL` | `60` | Ping interval in **seconds** |
+
+## Metric sources
+
+These default to the correct paths on any standard Linux system. Override them if your distribution or container mounts these filesystems elsewhere.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MEMINFO_PATH` | `/proc/meminfo` | Path to the kernel memory info file |
+| `DISKINFO_PATH` | `/proc/mounts` | Path to the kernel mount table |
+
+## Docker monitoring
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DOCKER_ENABLED` | `false` | Set to `true` to enable Docker event monitoring |
+
+See the [Docker monitoring](/docs/docker) page for details.
+
+## Example config file
+
+```bash
+# /etc/lookout/lookout.env
+
+# --- notification destinations ---
+GOOGLE_CHAT_WEBHOOK_URL=https://chat.googleapis.com/v1/spaces/XXX/messages?key=...
+# DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+# --- thresholds ---
+MEM_THRESHOLD=80
+DISK_THRESHOLD=90
+
+# --- timing ---
+COLLECTION_INTERVAL=30
+RENOTIFY_AFTER=3600
+
+# --- heartbeat ---
+# HEARTBEAT_URL=https://hc-ping.com/your-uuid-here
+# HEARTBEAT_INTERVAL=60
+
+# --- docker ---
+DOCKER_ENABLED=false
+```

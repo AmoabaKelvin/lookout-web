@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   Activity01Icon,
@@ -28,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { InstallCommand } from "@/components/install-command"
 import { LookoutLogo } from "@/components/lookout-logo"
+import { SiteNav } from "@/components/site-nav"
 import {
   GITHUB_URL,
   SITE_DESCRIPTION,
@@ -181,42 +183,7 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* ============ NAV ============ */}
-      <nav className="sticky top-0 z-50 border-b border-[var(--lk-line)] bg-[color-mix(in_oklab,var(--lk-bg),transparent_14%)] backdrop-blur-md">
-        <div className="mx-auto flex h-[66px] max-w-[1140px] items-center justify-between px-10 max-[920px]:px-6">
-          <LookoutLogo href="#install" />
-          <div className="flex items-center gap-[30px] max-[920px]:hidden">
-            {[
-              ["Features", "#features"],
-              ["How it works", "#how"],
-              ["Alerts", "#alerts"],
-              ["Docs", GITHUB_URL],
-            ].map(([label, href]) => (
-              <a
-                key={label}
-                href={href}
-                className="text-[15px] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              render={<a href={GITHUB_URL} />}
-              nativeButton={false}
-              className="max-[560px]:hidden"
-            >
-              <HugeiconsIcon icon={Github01Icon} size={17} />
-              Star
-            </Button>
-            <Button render={<a href="#install" />} nativeButton={false}>
-              Install
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <SiteNav logoHref="#install" />
 
       {/* ============ HERO (minimal) ============ */}
       <header
@@ -402,7 +369,7 @@ export default function Page() {
             </Button>
             <Button
               variant="outline"
-              render={<a href={GITHUB_URL} />}
+              render={<Link href="/docs" />}
               nativeButton={false}
               className="border-white/20 bg-transparent text-white hover:border-white/35 hover:bg-white/[0.07] hover:text-white dark:border-white/20 dark:bg-transparent dark:hover:bg-white/[0.07]"
             >
@@ -435,7 +402,7 @@ export default function Page() {
               {
                 head: "Resources",
                 links: [
-                  ["Documentation", GITHUB_URL],
+                  ["Documentation", "/docs"],
                   ["Releases", `${GITHUB_URL}/releases`],
                   ["Issues", `${GITHUB_URL}/issues`],
                 ],
@@ -454,16 +421,19 @@ export default function Page() {
                   {col.head}
                 </h4>
                 <ul className="flex flex-col gap-[11px]">
-                  {col.links.map(([label, href]) => (
-                    <li key={label}>
-                      <a
-                        href={href}
-                        className="text-[0.95rem] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-                      >
-                        {label}
-                      </a>
-                    </li>
-                  ))}
+                  {col.links.map(([label, href]) => {
+                    const Component = href.startsWith("/") ? Link : "a"
+                    return (
+                      <li key={label}>
+                        <Component
+                          href={href}
+                          className="text-[0.95rem] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
+                        >
+                          {label}
+                        </Component>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             ))}

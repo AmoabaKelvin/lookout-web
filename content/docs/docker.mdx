@@ -1,0 +1,73 @@
+export const title = "Docker Monitoring"
+export const description = "Monitor container lifecycle events with the Docker collector."
+
+Lookout can listen to the Docker daemon event stream and alert on abnormal container behaviour. This feature is **disabled by default** and requires Docker to be installed and running on the host.
+
+## Enabling Docker monitoring
+
+```bash
+DOCKER_ENABLED=true
+```
+
+Then restart: `sudo systemctl restart lookout`
+
+When enabled, Lookout connects to the Docker socket (`/var/run/docker.sock`) at startup. If the connection fails, the agent exits with an error rather than running silently without Docker coverage.
+
+## Monitored events
+
+| Event | Description |
+|-------|-------------|
+| `start` / `restart` | Container came up or was restarted |
+| `die` | Container exited (clean or unclean) |
+| `stop` | Container received a stop signal |
+| `oom` | Container was killed by the OOM killer |
+
+## How Docker alerting works
+
+The Docker collector is stateful — it accumulates events for each container and evaluates them together rather than firing on every raw event. This avoids noise during normal restarts.
+
+### OOM kills
+
+When a container receives an `oom` event followed by `die`, Lookout identifies it as an OOM kill and alerts immediately.
+
+### Unclean exits
+
+A non-zero exit code on `die` indicates the container did not stop cleanly. Lookout waits 1.5 seconds after the `die` event to collect any accompanying `stop` or `oom` events before evaluating, giving the daemon time to emit all related events.
+
+### Restart loop detection
+
+Container `DieTimes` are recorded. Future versions will use this history to detect containers that are crash-looping.
+
+## Permissions
+
+The `lookout` service user needs read access to the Docker socket. Add it to the `docker` group:
+
+```bash
+sudo usermod -aG docker lookout
+sudo systemctl restart lookout
+```
+
+<Callout type="warn">
+  Membership in the `docker` group is equivalent to root access on the host. Evaluate this tradeoff before enabling Docker monitoring on security-sensitive systems.
+</Callout>
+
+## Testing the Docker collector
+
+Start the agent, then in another terminal:
+
+```bash
+# start a container
+docker run -d --name probe nginx
+
+# restart it
+docker restart probe
+
+# kill it
+docker kill probe
+```
+
+Watch the events appear in the journal:
+
+```bash
+journalctl -u lookout -f
+```
