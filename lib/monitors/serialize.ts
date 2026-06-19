@@ -6,7 +6,14 @@ import type {
 } from "@/lib/db/schema/monitors"
 
 export function pingUrl(token: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+  // The ping URL is the one artifact users copy into their config, so refuse to
+  // silently emit a localhost URL when NEXT_PUBLIC_APP_URL is missing outside dev.
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    (process.env.NODE_ENV === "development" ? "http://localhost:3000" : null)
+  if (!base) {
+    throw new Error("NEXT_PUBLIC_APP_URL is not set")
+  }
   return `${base.replace(/\/$/, "")}/ping/${token}`
 }
 
