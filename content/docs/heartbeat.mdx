@@ -77,7 +77,7 @@ A brand-new monitor that has never been pinged stays **pending** and never alert
 
 Heartbeat alerts are sent from Lookout's servers — your machine is down, so it can't alert you itself. Choose where they go under **Settings** in the dashboard: Discord, Google Chat, or a generic webhook. Webhook URLs must be public `https` endpoints.
 
-This is separate from the agent's own `notifiers` (Discord, Slack, email, and the rest) that deliver [its threshold alerts](/docs/notifications) — those run on the server and can't fire once it goes offline, which is exactly why the heartbeat is delivered from Lookout instead.
+This is separate from the agent's own `notifiers` (Discord, Slack, email, and the rest) that deliver [its threshold alerts](/docs/notifications) — those run on the server and can't fire once it goes offline, which is why the heartbeat is delivered from Lookout instead.
 
 ## Tips
 

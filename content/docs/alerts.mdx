@@ -15,9 +15,9 @@ There are two kinds of rule:
 ![Alert lifecycle — firing path and recovery path](/docs/alert-lifecycle.png)
 
 - You are notified **once** when a problem starts — after it has persisted for `for`.
-- You are notified **again** only after `renotify_after` if it is still firing.
-- You are notified **when it clears**, so you always know when things are back to normal.
-- If a metric stops reporting for `stale_after`, Lookout alerts that the metric has gone **stale** (default: three times the collection interval).
+- If it is still firing after `renotify_after`, you get a reminder.
+- A **recovery** is sent when it clears, so you always know when things are back to normal.
+- If a metric stops reporting for `stale_after`, Lookout flags it as **stale** (default: three times the collection interval).
 
 State is persisted to `/var/lib/lookout/state.json`, so a service restart doesn't replay old alerts or lose track of what's firing.
 
