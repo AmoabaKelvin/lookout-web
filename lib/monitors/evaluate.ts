@@ -1,9 +1,10 @@
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 
 import { db } from "@/lib/db"
 import {
   monitorEvents,
   monitors,
+  type Monitor,
   type NewMonitor,
 } from "@/lib/db/schema/monitors"
 import { notifyDown } from "@/lib/notifications"
@@ -45,6 +46,12 @@ export async function runEvaluation(
         .update(monitors)
         .set({ lastCheckedAt: now })
         .where(eq(monitors.id, m.id))
+      // Retry a down alert that was never successfully delivered for the
+      // current outage (e.g. the first notifyDown threw after the transition).
+      if (decision.nextStatus === "down" && needsDownRetry(m)) {
+        downAlerts += 1
+        await notifyDown(m)
+      }
       continue
     }
 
@@ -56,8 +63,23 @@ export async function runEvaluation(
     if (decision.setDownSince) set.downSince = now
     if (decision.clearDownSince) set.downSince = null
 
-    await db.transaction(async (tx) => {
-      await tx.update(monitors).set(set).where(eq(monitors.id, m.id))
+    // Only transition if the row still matches the snapshot we evaluated. A ping
+    // (or an overlapping run) that changed status/last_ping_at in the meantime
+    // wins, and we skip — so a fresh ping is never clobbered and overlapping
+    // runs don't double-fire.
+    const applied = await db.transaction(async (tx) => {
+      const rows = await tx
+        .update(monitors)
+        .set(set)
+        .where(
+          and(
+            eq(monitors.id, m.id),
+            eq(monitors.status, m.status),
+            eq(monitors.lastPingAt, m.lastPingAt as Date),
+          ),
+        )
+        .returning({ id: monitors.id })
+      if (rows.length === 0) return false
       await tx.insert(monitorEvents).values({
         monitorId: m.id,
         type: "status_changed",
@@ -65,7 +87,9 @@ export async function runEvaluation(
         toStatus: decision.nextStatus,
         message: `Evaluator: ${m.status} → ${decision.nextStatus}`,
       })
+      return true
     })
+    if (!applied) continue
     transitioned += 1
 
     if (decision.fireDownAlert) {
@@ -79,4 +103,11 @@ export async function runEvaluation(
   }
 
   return { checked: list.length, transitioned, downAlerts }
+}
+
+// True when a monitor is down but the down alert for the current outage was
+// never successfully delivered (notifyDown sets last_alerted_at on success).
+function needsDownRetry(m: Monitor): boolean {
+  if (!m.downSince) return false
+  return m.lastAlertedAt === null || m.lastAlertedAt < m.downSince
 }

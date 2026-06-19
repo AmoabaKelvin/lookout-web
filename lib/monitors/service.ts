@@ -265,11 +265,19 @@ export async function recordPing(
   meta: { remoteIp: string | null; userAgent: string | null },
 ): Promise<{ monitor: Monitor; fireRecoveryAlert: boolean }> {
   const now = new Date()
-  const { nextStatus, fireRecoveryAlert } = applyPing(monitor.status)
-  const changed = nextStatus !== monitor.status
-  const downSince = nextStatus === "paused" ? monitor.downSince : null
+  // Decide the transition from the status read inside the transaction, not the
+  // caller's snapshot, so concurrent pings can't both observe "down" and emit
+  // duplicate recovery side effects.
+  const result = await db.transaction(async (tx) => {
+    const [current] = await tx
+      .select()
+      .from(monitors)
+      .where(eq(monitors.id, monitor.id))
+    const base = current ?? monitor
+    const { nextStatus, fireRecoveryAlert } = applyPing(base.status)
+    const changed = nextStatus !== base.status
+    const downSince = nextStatus === "paused" ? base.downSince : null
 
-  await db.transaction(async (tx) => {
     await tx
       .update(monitors)
       .set({ lastPingAt: now, status: nextStatus, downSince, updatedAt: now })
@@ -284,15 +292,16 @@ export async function recordPing(
       await tx.insert(monitorEvents).values({
         monitorId: monitor.id,
         type: "status_changed",
-        fromStatus: monitor.status,
+        fromStatus: base.status,
         toStatus: nextStatus,
-        message: `Ping received: ${monitor.status} → ${nextStatus}`,
+        message: `Ping received: ${base.status} → ${nextStatus}`,
       })
+    }
+    return {
+      monitor: { ...base, lastPingAt: now, status: nextStatus, downSince, updatedAt: now },
+      fireRecoveryAlert,
     }
   })
 
-  return {
-    monitor: { ...monitor, lastPingAt: now, status: nextStatus, downSince, updatedAt: now },
-    fireRecoveryAlert,
-  }
+  return result
 }
