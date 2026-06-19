@@ -24,7 +24,17 @@ async function handlePing(req: Request, token: string): Promise<Response> {
     remoteIp,
     userAgent,
   })
-  if (fireRecoveryAlert) await notifyRecovery(updated)
+  if (fireRecoveryAlert) {
+    // The ping is already recorded; a delivery failure must not surface as a 5xx.
+    try {
+      await notifyRecovery(updated)
+    } catch (err) {
+      console.error(
+        `[ping] recovery notification failed for ${updated.id}:`,
+        err instanceof Error ? err.message : err,
+      )
+    }
+  }
 
   return Response.json({ ok: true, status: updated.status })
 }

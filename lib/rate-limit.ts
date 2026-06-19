@@ -11,7 +11,12 @@ const hits = new Map<string, { count: number; resetAt: number }>()
 export function rateLimit(key: string, now: number = Date.now()): boolean {
   const entry = hits.get(key)
   if (!entry || now >= entry.resetAt) {
-    if (hits.size > MAX_KEYS) prune(now)
+    if (hits.size >= MAX_KEYS) {
+      prune(now)
+      // A flood of unique keys may leave nothing to prune; drop everything
+      // rather than grow unbounded (best-effort limiter; windows just reset).
+      if (hits.size >= MAX_KEYS) hits.clear()
+    }
     hits.set(key, { count: 1, resetAt: now + WINDOW_MS })
     return true
   }

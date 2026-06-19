@@ -38,9 +38,9 @@ export function NotificationSettingsForm({ initial }: { initial: Channels }) {
           webhook_url: webhook,
         }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
       if (!res.ok) {
-        setError(data.error ?? "Could not save")
+        setError(data?.error ?? "Could not save")
         setStatus("error")
         return
       }

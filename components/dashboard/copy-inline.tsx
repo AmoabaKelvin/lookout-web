@@ -16,6 +16,10 @@ export function CopyInline({
   className?: string
 }) {
   const [copied, setCopied] = React.useState(false)
+  const timer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  )
+  React.useEffect(() => () => clearTimeout(timer.current), [])
 
   return (
     <Button
@@ -26,7 +30,8 @@ export function CopyInline({
       onClick={() => {
         navigator.clipboard?.writeText(value.trim())
         setCopied(true)
-        window.setTimeout(() => setCopied(false), 1500)
+        clearTimeout(timer.current)
+        timer.current = setTimeout(() => setCopied(false), 1500)
       }}
     >
       <HugeiconsIcon

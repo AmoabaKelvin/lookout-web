@@ -60,7 +60,10 @@ export async function deliver(
   )
   settled.forEach((s, i) => {
     if (s.status === "rejected") {
-      console.error(`[notify] ${jobs[i].name} delivery failed:`, s.reason)
+      // Log only the message, never the raw error: a fetch failure's `cause`
+      // can include the webhook URL, which is a credential.
+      const msg = s.reason instanceof Error ? s.reason.message : "delivery error"
+      console.error(`[notify] ${jobs[i].name} delivery failed: ${msg}`)
     }
   })
   return { summary: parts.join(", ") }

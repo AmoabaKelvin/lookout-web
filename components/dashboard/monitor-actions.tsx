@@ -20,17 +20,25 @@ export function MonitorActions({
   const router = useRouter()
   const [busy, setBusy] = React.useState(false)
   const [rotated, setRotated] = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
   const paused = status === "paused"
 
   async function togglePause() {
     setBusy(true)
+    setError(null)
     try {
-      await fetch(`/api/monitors/${id}`, {
+      const res = await fetch(`/api/monitors/${id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ paused: !paused }),
       })
+      if (!res.ok) {
+        setError(paused ? "Could not resume the monitor." : "Could not pause the monitor.")
+        return
+      }
       router.refresh()
+    } catch {
+      setError("Network error. Please try again.")
     } finally {
       setBusy(false)
     }
@@ -44,15 +52,20 @@ export function MonitorActions({
     )
       return
     setBusy(true)
+    setError(null)
     try {
       const res = await fetch(`/api/monitors/${id}/rotate-token`, {
         method: "POST",
       })
-      const data = await res.json()
-      if (res.ok) {
-        setRotated(data.ping_url)
-        router.refresh()
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setError(data?.error ?? "Could not rotate the token.")
+        return
       }
+      setRotated(data.ping_url)
+      router.refresh()
+    } catch {
+      setError("Network error. Please try again.")
     } finally {
       setBusy(false)
     }
@@ -68,6 +81,12 @@ export function MonitorActions({
           Rotate token
         </Button>
       </div>
+
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
 
       {rotated ? (
         <div className="space-y-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">

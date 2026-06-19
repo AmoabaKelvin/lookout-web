@@ -29,29 +29,39 @@ export function LoginForm({
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const res =
-      mode === "signup"
-        ? await authClient.signUp.email({ email, password, name })
-        : await authClient.signIn.email({ email, password })
-    setBusy(false)
-    if (res.error) {
-      setError(res.error.message ?? "Something went wrong")
-      return
+    try {
+      const res =
+        mode === "signup"
+          ? await authClient.signUp.email({ email, password, name })
+          : await authClient.signIn.email({ email, password })
+      if (res.error) {
+        setError(res.error.message ?? "Something went wrong")
+        return
+      }
+      router.push("/dashboard")
+      router.refresh()
+    } catch {
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setBusy(false)
     }
-    router.push("/dashboard")
-    router.refresh()
   }
 
   async function onGithub() {
     setBusy(true)
     setError(null)
-    const res = await authClient.signIn.social({
-      provider: "github",
-      callbackURL: "/dashboard",
-    })
-    // On success the browser is redirected to GitHub, so we only land here on error.
-    if (res.error) {
-      setError(res.error.message ?? "GitHub sign-in failed")
+    // On success the browser is redirected to GitHub, so we only reset on error.
+    try {
+      const res = await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/dashboard",
+      })
+      if (res.error) {
+        setError(res.error.message ?? "GitHub sign-in failed")
+        setBusy(false)
+      }
+    } catch {
+      setError("GitHub sign-in failed. Please try again.")
       setBusy(false)
     }
   }

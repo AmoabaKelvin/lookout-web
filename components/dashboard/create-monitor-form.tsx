@@ -41,9 +41,9 @@ export function CreateMonitorForm() {
           grace_seconds: grace,
         }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
       if (!res.ok) {
-        setError(data.error ?? "Could not create monitor")
+        setError(data?.error ?? "Could not create monitor")
         return
       }
       setCreated(data)
