@@ -10,18 +10,12 @@ import {
   Download01Icon,
   Github01Icon,
   Mail01Icon,
-  MatrixIcon,
-  Megaphone01Icon,
   Message01Icon,
-  Message02Icon,
   MicrosoftIcon,
-  Notification01Icon,
   Notification03Icon,
   Settings02Icon,
-  Shield01Icon,
   SlackIcon,
   SlidersHorizontalIcon,
-  SmartPhone01Icon,
   TelegramIcon,
   WebhookIcon,
 } from "@hugeicons/core-free-icons"
@@ -143,23 +137,17 @@ const STEPS: {
 ]
 
 const CHANNELS_A: { icon: IconSvgElement; name: string }[] = [
-  { icon: SlackIcon, name: "Slack" },
-  { icon: Mail01Icon, name: "Email" },
+  { icon: Message01Icon, name: "Google Chat" },
   { icon: DiscordIcon, name: "Discord" },
-  { icon: Notification03Icon, name: "PagerDuty" },
-  { icon: TelegramIcon, name: "Telegram" },
-  { icon: WebhookIcon, name: "Webhook" },
+  { icon: SlackIcon, name: "Slack" },
   { icon: MicrosoftIcon, name: "Microsoft Teams" },
 ]
 
 const CHANNELS_B: { icon: IconSvgElement; name: string }[] = [
-  { icon: Shield01Icon, name: "Opsgenie" },
-  { icon: Notification01Icon, name: "ntfy" },
-  { icon: Message02Icon, name: "SMS" },
-  { icon: Message01Icon, name: "Mattermost" },
-  { icon: SmartPhone01Icon, name: "Pushover" },
-  { icon: MatrixIcon, name: "Matrix" },
-  { icon: Megaphone01Icon, name: "Gotify" },
+  { icon: TelegramIcon, name: "Telegram" },
+  { icon: Notification03Icon, name: "PagerDuty" },
+  { icon: WebhookIcon, name: "Webhook" },
+  { icon: Mail01Icon, name: "Email" },
 ]
 
 function ChannelPill({ icon, name }: { icon: IconSvgElement; name: string }) {
@@ -263,6 +251,73 @@ export default function Page() {
         </div>
       </section>
 
+      {/* ============ HEARTBEAT / DEAD-MAN'S SWITCH ============ */}
+      <section id="heartbeat" className="border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
+        <div className="mx-auto grid max-w-[1140px] grid-cols-2 items-center gap-16 px-10 max-[920px]:grid-cols-1 max-[920px]:gap-10 max-[920px]:px-6">
+          <div>
+            <Eyebrow>Dead-man&apos;s switch</Eyebrow>
+            <h2 className="mt-[18px] text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
+              And when the whole box goes dark?
+            </h2>
+            <p className="mt-4 text-[1.1rem] leading-[1.55] text-[var(--lk-ink-2)]">
+              If the machine dies, the network drops, or Lookout itself stops,
+              the agent can&apos;t send a thing. A hosted heartbeat monitor
+              expects a regular ping — and tells you the moment one stops
+              arriving.
+            </p>
+            <ol className="mt-6 space-y-2.5 text-[1rem] text-[var(--lk-ink-2)]">
+              {[
+                "Create a heartbeat monitor in your dashboard.",
+                "Paste its ping URL into your Lookout config.",
+                "Get alerted the instant pings go silent — and again when they resume.",
+              ].map((step, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[var(--lk-accent-tint)] font-mono text-[11px] font-semibold text-[var(--lk-accent-strong)]">
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+            <div className="mt-8 flex flex-wrap gap-3.5">
+              <Button render={<Link href="/dashboard" />} nativeButton={false}>
+                Create a heartbeat monitor
+              </Button>
+              <Button
+                variant="outline"
+                render={<Link href="/docs/heartbeat" />}
+                nativeButton={false}
+              >
+                Read the guide
+              </Button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-[#23262b] bg-[#0e1013] shadow-[0_24px_60px_-32px_rgba(20,22,26,0.7)]">
+            <div className="flex items-center gap-2 border-b border-[#23262b] px-4 py-3">
+              <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+              <span className="size-2.5 rounded-full bg-[#febc2e]" />
+              <span className="size-2.5 rounded-full bg-[#28c840]" />
+              <span className="ml-2 font-mono text-[11.5px] text-[#7d8590]">
+                /etc/lookout/config.yaml
+              </span>
+            </div>
+            <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-relaxed text-[#cfcdc8]">
+              <code>
+                <span className="text-[#6e7681]"># dead-man&apos;s switch</span>
+                {"\n"}
+                <span className="text-[#7ee787]">heartbeat:</span>
+                {"\n  "}
+                <span className="text-[#7ee787]">url:</span>{" "}
+                &quot;https://lookout.kelvinamoaba.com/ping/lk_ping_…&quot;
+                {"\n  "}
+                <span className="text-[#7ee787]">interval:</span> 60s
+              </code>
+            </pre>
+          </div>
+        </div>
+      </section>
+
       {/* ============ HOW IT WORKS ============ */}
       <section id="how" className="border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
         <div className="mx-auto max-w-[1140px] px-10 max-[920px]:px-6">
@@ -335,7 +390,7 @@ export default function Page() {
           </div>
 
           <p className="mt-12 text-center text-[1rem] text-[var(--lk-ink-3)]">
-            A dozen destinations built in — and anything else you can reach with a{" "}
+            Eight destinations built in — and anything else you can reach with a{" "}
             <code className="rounded-[5px] bg-[var(--lk-line-2)] px-[7px] py-0.5 font-mono text-[0.85rem] text-[var(--lk-ink-2)]">
               POST
             </code>
@@ -397,6 +452,7 @@ export default function Page() {
                   ["Features", "#features"],
                   ["How it works", "#how"],
                   ["Alert channels", "#alerts"],
+                  ["Heartbeat monitor", "/docs/heartbeat"],
                 ],
               },
               {

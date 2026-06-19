@@ -14,6 +14,8 @@ const navItems = [
   { title: "Introduction", slug: "index" },
   { title: "Installation", slug: "installation" },
   { title: "Configuration", slug: "configuration" },
+  { title: "Heartbeat monitoring", slug: "heartbeat" },
+  { title: "Prometheus metrics", slug: "metrics" },
   { title: "Alerts", slug: "alerts" },
   { title: "Notifications", slug: "notifications" },
   { title: "Docker Monitoring", slug: "docker" },

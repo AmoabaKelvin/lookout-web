@@ -4,6 +4,8 @@ const DOCS_SLUGS = [
   "index",
   "installation",
   "configuration",
+  "heartbeat",
+  "metrics",
   "alerts",
   "notifications",
   "docker",
