@@ -1,25 +1,45 @@
 export const title = "Introduction"
 export const description = "What is Lookout and how does it work?"
 
-Lookout is a lightweight, self-hosted server monitoring agent for Linux. It runs as a background daemon, continuously collecting system metrics and firing alerts to your preferred notification channel when thresholds are crossed — no SaaS, no cloud dependency, no per-seat pricing.
+Lookout is a small, self-hosted monitoring agent for Linux servers. It runs as a systemd service on the machine you care about, watches the basics, and sends an alert when something crosses a threshold or stops reporting — no SaaS, no cloud dependency, no per-seat pricing.
 
-## What it monitors
+One static binary, one YAML file, one systemd service. It's built for the kind of server where you want useful alerts without running a full Prometheus stack.
 
-| Resource | Metrics collected |
-|----------|-------------------|
-| **Memory** | Total, used, available, used % |
-| **Disk** | Total, used, free, used % per mount |
-| **Docker** | Container start, stop, crash, OOM events |
+## What it watches
+
+Lookout collects metrics from the local machine and evaluates alerts in-process.
+
+| Area | What Lookout checks |
+|------|---------------------|
+| **Memory** | Used memory %, from `/proc/meminfo` and `MemAvailable` |
+| **Swap** | Used swap % |
+| **Disk** | Used % for each configured mount |
+| **Disk growth** | Whether a disk is on pace to fill within a window |
+| **Load** | 1-minute load average ÷ CPU cores |
+| **CPU** | CPU usage %, from `/proc/stat` |
+| **systemd** | Whether named services are active |
+| **HTTP** | Whether configured URLs return the expected status code |
+| **TCP** | Whether configured TCP addresses accept a connection |
+| **Processes** | Whether named processes are running |
+| **Docker** | Container exits, OOM kills, restart loops, failed healthchecks (optional) |
+| **Heartbeat** | An outbound dead-man's-switch ping (optional) |
+
+Memory, disk, CPU, swap, and load run out of the box; the service, HTTP, TCP, and process checks start working once you list what to watch.
 
 ## How it works
 
-Lookout is built around three internal components:
+**Collectors** read from the kernel (`/proc/meminfo`, `/proc/stat`, `/proc/loadavg`, `/proc/mounts`), the Docker daemon, systemd, and the network, and normalise everything into typed metric samples.
 
-**Collectors** read raw data from the kernel (`/proc/meminfo`, `/proc/mounts`) and the Docker daemon, then normalise it into typed metric samples. Each collector knows only about its own data source.
+**The evaluator** checks each sample against your configured thresholds. It is stateful: it waits for a value to stay over the line before alerting, won't re-notify until a quiet period passes, and sends a recovery message when the value drops back down.
 
-**Evaluator** receives every metric sample and checks it against the configured threshold rules. It is stateful — it tracks whether an alert is already firing so it won't flood you with repeated notifications, and it sends a recovery message when a metric drops back below the threshold.
+**Notifiers** dispatch alerts to every channel you enable — Google Chat, Discord, Slack, Microsoft Teams, Telegram, PagerDuty, a generic webhook, or email. With nothing configured, alerts print to stdout and land in the systemd journal.
 
-**Alert Manager** dispatches notifications to the enabled channels (Discord, Google Chat, or the console). It enforces the re-notify window so you only hear about a problem again after a configurable quiet period.
+![How Lookout works — Collectors feed samples to the Evaluator which sends alerts to the notifiers](/docs/architecture.png)
 
-![How Lookout works — Collectors feed samples to the Evaluator which sends alerts to the Alert Manager](/docs/architecture.png)
+Alert state is stored at `/var/lib/lookout/state.json`, so Lookout remembers what's firing across restarts and sends clean recoveries instead of starting from scratch every time.
 
+If you already run Prometheus or Grafana, Lookout can optionally expose its readings at `GET /metrics` — see [Prometheus metrics](/docs/metrics).
+
+## Beyond local metrics
+
+If the whole machine goes offline, the agent can't alert you. Lookout's **heartbeat** sends a regular ping to a dead-man's switch — and [Lookout's hosted heartbeat monitoring](/docs/heartbeat) can be that switch, so you don't have to bring a third-party service.

@@ -1,0 +1,86 @@
+export const title = "Heartbeat monitoring"
+export const description = "Get alerted when your server or the Lookout agent stops checking in — a dead-man's switch built into Lookout."
+
+Lookout watches your server from the inside, but if the whole machine goes down, the network drops, or the Lookout process dies, the agent can't send you an alert. A **heartbeat monitor** closes that gap: Lookout expects a regular ping, and alerts you when one doesn't arrive.
+
+This is a dead-man's switch built into Lookout — there's no third-party service to sign up for.
+
+## How it works
+
+1. You create a heartbeat monitor in Lookout and get a unique **ping URL**.
+2. The Lookout agent pings that URL on a fixed interval.
+3. Lookout records each ping. As long as they keep arriving, the monitor is **up**.
+4. If a ping is late beyond its grace period, the monitor goes **down** and Lookout alerts you.
+5. When pings resume, Lookout sends a recovery alert.
+
+Because Lookout uses the time it *receives* each ping, clock skew on your server doesn't matter.
+
+## 1. Create a monitor
+
+Open [your Lookout dashboard](/dashboard) and click **New monitor**. Give it:
+
+- a **name** (e.g. "Production VPS")
+- an **expected interval** — how often the agent pings (default `60s`)
+- a **grace period** — how much lateness to allow before alerting (default `120s`)
+
+With the defaults, a monitor pinging every minute is marked down after about three minutes of silence.
+
+## 2. Copy the ping URL
+
+After creating the monitor, Lookout shows its unique ping URL **once**:
+
+```text
+https://lookout.kelvinamoaba.com/ping/lk_ping_xxxxxxxxxxxx
+```
+
+Treat this URL like a secret — anyone who has it can send pings on your behalf. If it ever leaks, rotate it from the monitor's page; the old URL stops working immediately.
+
+## 3. Add it to your agent config
+
+Set it as the `heartbeat.url` in `/etc/lookout/config.yaml`, with the interval matching what you entered when creating the monitor:
+
+```yaml
+# /etc/lookout/config.yaml
+heartbeat:
+  url: "https://lookout.kelvinamoaba.com/ping/lk_ping_xxxxxxxxxxxx"
+  interval: 60s
+```
+
+Then restart Lookout:
+
+```bash
+sudo systemctl restart lookout
+```
+
+The first ping should arrive within a minute and your monitor will flip to **up**.
+
+## Monitor states
+
+| State | Meaning |
+|-------|---------|
+| **Pending** | Created, but no ping received yet. Waiting for the first ping. |
+| **Up** | A ping arrived recently enough. |
+| **Late** | Past the expected interval but still inside the grace period — no alert yet. |
+| **Down** | Past the grace period. Lookout fires a down alert. |
+| **Paused** | Alerting is temporarily disabled. Pings are still recorded. |
+
+## Alerts
+
+A heartbeat monitor sends two kinds of alert:
+
+- **Down** — when pings stop arriving within the grace window.
+- **Recovery** — when a new ping arrives after the monitor was down.
+
+A brand-new monitor that has never been pinged stays **pending** and never alerts, so you won't get noise before setup is finished. Paused monitors don't alert either.
+
+## Notification channels
+
+Heartbeat alerts are sent from Lookout's servers — your machine is down, so it can't alert you itself. Choose where they go under **Settings** in the dashboard: Discord, Google Chat, or a generic webhook. Webhook URLs must be public `https` endpoints.
+
+This is separate from the agent's own `notifiers` (Discord, Slack, email, and the rest) that deliver [its threshold alerts](/docs/notifications) — those run on the server and can't fire once it goes offline, which is why the heartbeat is delivered from Lookout instead.
+
+## Tips
+
+- The grace period absorbs a single missed ping, so a brief hiccup won't trip a false alarm.
+- Pause a monitor before planned maintenance to avoid a down alert, then resume it afterward.
+- Duplicate or very frequent pings are harmless.

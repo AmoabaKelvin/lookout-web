@@ -5,14 +5,14 @@ export const description = "Install Lookout on a Linux server in under a minute.
 
 - Linux (x86_64 or arm64)
 - systemd
-- `curl` and `sha256sum`
+- `curl`
 - Root / sudo access
 
-Lookout does **not** require Go, Docker, or any runtime to be installed — the release artifact is a self-contained static binary.
+Lookout does **not** require Go, Docker, or any runtime — the release artifact is a self-contained static binary.
 
 ## One-line installer
 
-The recommended way to install Lookout is with the official install script. It downloads the correct binary for your architecture, verifies its checksum, creates a dedicated unprivileged system user, and registers a systemd service.
+The recommended way to install Lookout is the official install script. It downloads the correct binary for your architecture, verifies its checksum, creates an unprivileged system user, writes a config template, and registers a systemd service.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/install.sh | sudo sh
@@ -21,26 +21,26 @@ curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/install.s
 To pin a specific version:
 
 ```bash
-VERSION=v1.0.0 curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/install.sh | sudo sh
+curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/install.sh | sudo VERSION=v1.0.0 sh
 ```
 
-After the script finishes, Lookout is **already running**. Alerts will print to the systemd journal until you configure a webhook.
+After the script finishes, Lookout is **already running**. Alerts print to the systemd journal until you configure a notifier. Re-running the installer upgrades the binary and keeps your existing config.
 
 ## What the installer does
 
 1. Detects your CPU architecture (`amd64` or `arm64`).
 2. Resolves the latest release tag from GitHub (or uses `VERSION` if set).
-3. Downloads the binary and verifies its SHA-256 checksum against the published `checksums.txt`.
+3. Downloads the binary and verifies its SHA-256 checksum.
 4. Installs the binary to `/usr/local/bin/lookout`.
 5. Creates a locked-down system user `lookout` (no home directory, no login shell).
-6. Writes a config template to `/etc/lookout/lookout.env` — **only on first install**; re-running never overwrites an existing config.
-7. Installs and enables the systemd unit `lookout.service`.
+6. Writes a config template to `/etc/lookout/config.yaml` — **only on first install**; re-running never overwrites an existing config.
+7. Installs and starts the systemd unit `lookout.service`, which runs `lookout --config /etc/lookout/config.yaml` and keeps state under `/var/lib/lookout`.
 
 ## Next steps
 
 ```bash
-# 1. Open the config and add your webhook URL
-sudo nano /etc/lookout/lookout.env
+# 1. Open the config and add the checks and notifiers you want
+sudo nano /etc/lookout/config.yaml
 
 # 2. Restart to apply the new config
 sudo systemctl restart lookout
@@ -49,9 +49,11 @@ sudo systemctl restart lookout
 journalctl -u lookout -f
 ```
 
+See [Configuration](/docs/configuration) for every option and [Notifications](/docs/notifications) to route alerts off the box.
+
 ## Manual installation
 
-If you prefer not to pipe a script to `sudo sh`, you can install manually:
+If you prefer not to pipe a script to `sudo sh`:
 
 ```bash
 # 1. Download the binary for your architecture
@@ -60,11 +62,13 @@ curl -fsSL https://github.com/AmoabaKelvin/lookout/releases/latest/download/look
 chmod +x /usr/local/bin/lookout
 
 # 2. Create the service user
-useradd --system --user-group --no-create-home --shell /usr/sbin/nologin lookout
+useradd --system --no-create-home --shell /usr/sbin/nologin lookout
 
-# 3. Create the config directory
+# 3. Create the config (see Configuration for the full file)
 mkdir -p /etc/lookout
-# Then write your /etc/lookout/lookout.env (see Configuration)
+# write /etc/lookout/config.yaml, then lock it down:
+chmod 600 /etc/lookout/config.yaml
+chown lookout:lookout /etc/lookout/config.yaml
 
 # 4. Create the systemd unit
 cat > /etc/systemd/system/lookout.service <<EOF
@@ -77,10 +81,10 @@ Wants=network-online.target
 Type=simple
 User=lookout
 Group=lookout
-ExecStart=/usr/local/bin/lookout
-EnvironmentFile=/etc/lookout/lookout.env
+ExecStart=/usr/local/bin/lookout --config /etc/lookout/config.yaml
 Restart=always
 RestartSec=5
+StateDirectory=lookout
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
@@ -97,12 +101,14 @@ systemctl enable --now lookout
 
 ## Uninstalling
 
+Remove the service and binary, but keep the config and service user:
+
 ```bash
-systemctl stop lookout
-systemctl disable lookout
-rm /etc/systemd/system/lookout.service
-rm /usr/local/bin/lookout
-rm -rf /etc/lookout
-userdel lookout
-systemctl daemon-reload
+curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/uninstall.sh | sudo sh
+```
+
+Remove everything, including the config directory and service user:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AmoabaKelvin/lookout/main/uninstall.sh | sudo sh -s -- --purge
 ```

@@ -3,53 +3,59 @@ export const description = "How Lookout evaluates metrics, fires alerts, and sen
 
 ## How alerting works
 
-Every time a collector runs it produces a list of `MetricSample` values. Each sample flows through the **Evaluator**, which checks it against every configured rule.
+Every collection cycle produces a set of metric samples. The evaluator checks each sample against the rules in your [`alerts` config](/docs/configuration#alerts) and tracks each rule's state over time, so it knows whether an alert is already firing.
 
-A rule has three parts:
+There are two kinds of rule:
 
-- A **matcher** — determines which metric samples the rule applies to.
-- A **threshold** — the numeric value above which the rule fires.
-- A **message** — the human-readable title sent in the notification.
+- **Threshold checks** — `memory`, `disk`, `cpu`, `swap`, `load`. They compare a number against a `threshold`, clear at `resolve_below`, and only fire once the value has stayed over the line for `for`.
+- **Service & presence checks** — `systemd`, `http`, `tcp`, `process`. They fire when something isn't healthy (a service is inactive, a URL returns the wrong status, a port won't connect, a process is missing) and clear when it recovers.
 
 ## Alert lifecycle
 
 ![Alert lifecycle — firing path and recovery path](/docs/alert-lifecycle.png)
 
-This means:
+- You are notified **once** when a problem starts — after it has persisted for `for`.
+- If it is still firing after `renotify_after`, you get a reminder.
+- A **recovery** is sent when it clears, so you always know when things are back to normal.
+- If a metric stops reporting for `stale_after`, Lookout flags it as **stale** (default: three times the collection interval).
 
-- You are notified **once** when a problem starts.
-- You are notified **again** only after `RENOTIFY_AFTER` seconds if the problem persists.
-- You are notified **when the problem clears** — so you always know when things are back to normal.
+State is persisted to `/var/lib/lookout/state.json`, so a service restart doesn't replay old alerts or lose track of what's firing.
 
-## Built-in alert rules
+## Severity
 
-### High memory usage
+Each check has a `severity` of `warning` or `critical`. It sets the label, emoji, and color of the alert (and maps to the PagerDuty severity).
 
-Fires when `memory.used_percent` exceeds `MEM_THRESHOLD` (default `85`).
+| State | Label | Color |
+|-------|-------|-------|
+| Firing, warning | 🟡 WARNING | amber |
+| Firing, critical | 🔴 CRITICAL | red |
+| Resolved | ✅ RESOLVED | green |
+
+Threshold checks default to `warning`; service, presence, and Docker checks default to `critical`.
+
+## Built-in threshold rules
+
+| Rule | Metric | Default threshold | Message |
+|------|--------|-------------------|---------|
+| Memory | `memory.used_percent` | 85% | High memory usage |
+| Disk | `disk.<mount>.used_percent` | 85% | High disk usage |
+| Disk growth | `disk.<mount>.fills_within_window` | within 4h | Disk predicted to fill soon |
+| CPU | `cpu.used_percent` | 85% | High CPU usage |
+| Swap | `swap.used_percent` | 80% | High swap usage |
+| Load | `load.1_per_core` | 1.5 | High 1-minute load per core |
+
+## Message format
+
+Every notification — regardless of channel — renders from the same fields:
 
 ```
-🔴 FIRING — High memory usage
+🔴 CRITICAL — High memory usage
 Host: my-server
 Metric: memory.used_percent
 Value: 91.43% (threshold 85.00%)
 ```
 
-### High disk usage
-
-Fires when any tracked mount's `disk.<name>.used_percent` exceeds `DISK_THRESHOLD` (default `85`).
-
-Lookout monitors these mounts by default: `/`, `/home`, `/var`, `/boot`.
-
-```
-🔴 FIRING — High disk usage
-Host: my-server
-Metric: disk.root.used_percent
-Value: 92.10% (threshold 85.00%)
-```
-
-## Recovery notifications
-
-When a firing alert drops back below its threshold, Lookout automatically sends a recovery:
+When the value drops back below `resolve_below`, Lookout sends the recovery:
 
 ```
 ✅ RESOLVED — High memory usage
@@ -58,25 +64,21 @@ Metric: memory.used_percent
 Value: 74.21% (threshold 85.00%)
 ```
 
-## Tuning thresholds
+## Tuning
 
-Adjust `MEM_THRESHOLD` and `DISK_THRESHOLD` in `/etc/lookout/lookout.env`:
+Adjust thresholds and timing in `/etc/lookout/config.yaml`, then restart:
 
-```bash
-MEM_THRESHOLD=80    # alert at 80% memory usage
-DISK_THRESHOLD=90   # alert at 90% disk usage
+```yaml
+alerts:
+  renotify_after: 30m   # re-alert every 30 minutes while still firing
+  memory:
+    threshold: 80       # alert at 80% memory
+    resolve_below: 75
+    for: 0s             # alert immediately instead of waiting
 ```
-
-Then restart:
 
 ```bash
 sudo systemctl restart lookout
 ```
 
-## Re-notify window
-
-By default Lookout re-alerts every **60 minutes** on a still-firing issue. To change this, set `RENOTIFY_AFTER` in seconds:
-
-```bash
-RENOTIFY_AFTER=1800   # re-alert every 30 minutes
-```
+See [Configuration](/docs/configuration) for every field.

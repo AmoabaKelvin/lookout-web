@@ -1,0 +1,76 @@
+export const title = "Prometheus metrics"
+export const description = "Optionally expose Lookout's latest readings as Prometheus metrics at GET /metrics."
+
+Lookout can expose the latest collected values as Prometheus text, so you can scrape them into Prometheus, Grafana Agent, VictoriaMetrics, or anything that speaks the Prometheus exposition format. It is **off by default**.
+
+This serves only the current in-memory snapshot — it does **not** add storage, retention, dashboards, or a query layer. Lookout is an alerting agent first; this endpoint is a read-only export for systems that already collect metrics.
+
+## Enable it
+
+```yaml
+metrics:
+  enabled: true
+  listen: "127.0.0.1:9100"
+```
+
+Then restart the service:
+
+```bash
+sudo systemctl restart lookout
+```
+
+Lookout serves `GET /metrics` on the `listen` address (it also answers `HEAD`).
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `enabled` | `false` | Turn the endpoint on |
+| `listen` | `127.0.0.1:9100` | `host:port` to serve `/metrics` on |
+
+> `listen` defaults to loopback. Keep it on `127.0.0.1` or a private interface unless it sits behind a firewall or reverse proxy — the endpoint is unauthenticated.
+
+## What it exposes
+
+Every reading is a Prometheus **gauge** carrying a `host` label. A scrape looks like:
+
+```text
+# TYPE memory_used_percent gauge
+memory_used_percent{host="web-1"} 73.42 1718790000000
+# TYPE cpu_used_percent gauge
+cpu_used_percent{host="web-1"} 18.6 1718790000000
+# TYPE swap_used_percent gauge
+swap_used_percent{host="web-1"} 4.1 1718790000000
+# TYPE load_1_per_core gauge
+load_1_per_core{host="web-1"} 0.62 1718790000000
+# TYPE disk_used_percent gauge
+disk_used_percent{host="web-1",mount="/"} 51.0 1718790000000
+```
+
+Disk metrics carry a `mount` label so each filesystem is its own series.
+
+Service and presence checks export a `0` / `1` health gauge (`1` means unhealthy or missing), labelled by `name`:
+
+```text
+# TYPE systemd_unhealthy gauge
+systemd_unhealthy{host="web-1",name="nginx"} 0
+# TYPE http_unhealthy gauge
+http_unhealthy{host="web-1",name="app"} 0
+# TYPE tcp_unhealthy gauge
+tcp_unhealthy{host="web-1",name="redis"} 0
+# TYPE process_missing gauge
+process_missing{host="web-1",name="nginx"} 0
+```
+
+The values mirror what the [alert rules](/docs/alerts) evaluate, so you can build dashboards and your own Prometheus alerting rules on the same numbers Lookout uses.
+
+## Scraping it
+
+Point your scraper at the listen address. A minimal Prometheus job:
+
+```yaml
+scrape_configs:
+  - job_name: lookout
+    static_configs:
+      - targets: ["10.0.0.5:9100"]
+```
+
+If you keep `listen` on `127.0.0.1`, scrape from the same host or reach it over a private network / tunnel. Lookout does not add authentication to the endpoint, so don't expose it directly to the public internet.

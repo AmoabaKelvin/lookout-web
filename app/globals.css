@@ -160,7 +160,7 @@
   --popover: var(--lk-surface);
   --popover-foreground: var(--lk-ink);
   --primary: var(--lk-accent);
-  --primary-foreground: var(--lk-accent-ink);
+  --primary-foreground: #ffffff;
   --secondary: var(--lk-line-2);
   --secondary-foreground: var(--lk-ink);
   --muted: var(--lk-line-2);

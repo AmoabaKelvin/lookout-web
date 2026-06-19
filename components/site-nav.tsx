@@ -12,6 +12,7 @@ const links = [
   ["How it works", "#how"],
   ["Alerts", "#alerts"],
   ["Docs", "/docs"],
+  ["Dashboard", "/dashboard"],
 ] as const
 
 export function SiteNav({ logoHref = "/" }: { logoHref?: string }) {
