@@ -1,0 +1,14 @@
+import { LoginForm } from "@/components/auth/login-form"
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error } = await searchParams
+  return (
+    <LoginForm
+      oauthError={error ? "GitHub sign-in failed. Please try again." : null}
+    />
+  )
+}
