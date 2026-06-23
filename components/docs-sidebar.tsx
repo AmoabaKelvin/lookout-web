@@ -3,12 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-
-const REPO = "https://github.com/AmoabaKelvin/lookout"
-
-const releases = [
-  { version: "v0.0.1", url: `${REPO}/releases/tag/v0.0.1` },
-] as const
+import type { Release } from "@/lib/releases"
 
 const navItems = [
   { title: "Introduction", slug: "index" },
@@ -21,7 +16,7 @@ const navItems = [
   { title: "Docker Monitoring", slug: "docker" },
 ] as const
 
-export function DocsSidebar() {
+export function DocsSidebar({ releases }: { releases: Release[] }) {
   const pathname = usePathname()
 
   function isActive(slug: string) {
