@@ -180,49 +180,10 @@
 /* smooth in-page scrolling, offset for the sticky nav */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 84px;
+  scroll-padding-top: 72px;
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-}
-
-/* how-it-works step icon micro-interactions (run while the step is hovered) */
-.lk-step:hover .lk-badge {
-  border-color: var(--lk-accent);
-}
-.lk-step:hover .lk-ic-download {
-  animation: lk-download 0.95s cubic-bezier(0.36, 0.66, 0.04, 1) infinite;
-}
-.lk-step:hover .lk-ic-spin {
-  animation: lk-spin 1.6s linear infinite;
-}
-.lk-step:hover .lk-ic-ring {
-  transform-origin: 50% 12%;
-  animation: lk-ring 0.9s ease-in-out infinite;
-}
-@keyframes lk-download {
-  0% { transform: translateY(-3px); }
-  35% { transform: translateY(3px); }
-  50% { transform: translateY(1px); }
-  65% { transform: translateY(3px); }
-  100% { transform: translateY(-3px); }
-}
-@keyframes lk-spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes lk-ring {
-  0%, 100% { transform: rotate(0deg); }
-  20% { transform: rotate(12deg); }
-  40% { transform: rotate(-9deg); }
-  60% { transform: rotate(6deg); }
-  80% { transform: rotate(-3deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lk-step:hover .lk-ic-download,
-  .lk-step:hover .lk-ic-spin,
-  .lk-step:hover .lk-ic-ring {
-    animation: none;
-  }
 }
 
 /* eyes idle glance — runs until a real cursor takes over (see lookout-logo) */
@@ -239,34 +200,4 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   .lk-pupil { animation: none; }
-}
-
-/* channel marquee */
-@keyframes lk-marquee {
-  to { transform: translateX(-50%); }
-}
-.lk-marquee {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-}
-.lk-mq-row {
-  display: flex;
-  gap: 16px;
-  width: max-content;
-  animation: lk-marquee 52s linear infinite;
-}
-.lk-mq-row.rev {
-  animation-duration: 64s;
-  animation-direction: reverse;
-}
-.lk-marquee:hover .lk-mq-row {
-  animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .lk-mq-row {
-    animation: none;
-    flex-wrap: wrap;
-    width: auto;
-    justify-content: center;
-  }
 }

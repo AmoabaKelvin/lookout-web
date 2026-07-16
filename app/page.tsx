@@ -1,28 +1,7 @@
 import Link from "next/link"
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
-import {
-  Activity01Icon,
-  ChartLineData01Icon,
-  ChipIcon,
-  ContainerIcon,
-  Database01Icon,
-  DiscordIcon,
-  Download01Icon,
-  Github01Icon,
-  Mail01Icon,
-  Message01Icon,
-  MicrosoftIcon,
-  Notification03Icon,
-  Settings02Icon,
-  SlackIcon,
-  SlidersHorizontalIcon,
-  TelegramIcon,
-  WebhookIcon,
-} from "@hugeicons/core-free-icons"
 
 import { Button } from "@/components/ui/button"
 import { InstallCommand } from "@/components/install-command"
-import { LookoutLogo } from "@/components/lookout-logo"
 import { SiteNav } from "@/components/site-nav"
 import {
   GITHUB_URL,
@@ -64,103 +43,100 @@ const jsonLd = {
   ],
 }
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2.5 font-mono text-[12.5px] font-medium tracking-[0.12em] text-[var(--lk-ink-2)] uppercase">
-      <span className="size-[7px] rounded-full bg-[var(--lk-accent)] shadow-[0_0_0_4px_var(--lk-accent-tint)]" />
-      {children}
-    </span>
-  )
-}
-
-const FEATURES: { icon: IconSvgElement; title: string; body: string }[] = [
+const FEATURES: { title: string; body: string }[] = [
   {
-    icon: ChipIcon,
     title: "Memory",
     body: "Catch leaks and runaway processes before the OOM killer does it for you.",
   },
   {
-    icon: Database01Icon,
     title: "Disk",
     body: "Know before a volume fills up and writes start silently failing.",
   },
   {
-    icon: ChartLineData01Icon,
     title: "CPU & load",
     body: "Spot sustained spikes and load averages that keep climbing past your cores.",
   },
   {
-    icon: ContainerIcon,
     title: "Docker containers",
     body: "Get pinged the instant a container exits, restarts, or starts thrashing.",
   },
   {
-    icon: Activity01Icon,
     title: "Endpoints & ports",
     body: "Ping an HTTP endpoint or TCP port and hear about it the moment it stops answering.",
   },
   {
-    icon: SlidersHorizontalIcon,
     title: "Custom thresholds",
     body: "Define your own checks in plain YAML. Any metric, any limit, any interval.",
   },
 ]
 
-const STEPS: {
-  icon: IconSvgElement
-  anim: "download" | "spin" | "ring"
-  num: string
-  title: string
-  body: string
-}[] = [
+const STEPS: { num: string; title: string; body: string }[] = [
   {
-    icon: Download01Icon,
-    anim: "download",
-    num: "Step 01",
+    num: "01",
     title: "Install",
-    body: "One command drops a single static binary on any Linux box — no runtime, no dependencies, no account.",
+    body: "One command drops a single static binary on any Linux box. No runtime, no dependencies, no account.",
   },
   {
-    icon: Settings02Icon,
-    anim: "spin",
-    num: "Step 02",
+    num: "02",
     title: "Point it at what matters",
     body: "Pick your thresholds — or keep the sensible defaults. Watch a host, a path, a port, or a container.",
   },
   {
-    icon: Notification03Icon,
-    anim: "ring",
-    num: "Step 03",
+    num: "03",
     title: "Get alerted",
     body: "Lookout only speaks up when a threshold is crossed — then once more when things recover.",
   },
 ]
 
-const CHANNELS_A: { icon: IconSvgElement; name: string }[] = [
-  { icon: Message01Icon, name: "Google Chat" },
-  { icon: DiscordIcon, name: "Discord" },
-  { icon: SlackIcon, name: "Slack" },
-  { icon: MicrosoftIcon, name: "Microsoft Teams" },
+const CHANNELS = [
+  "Slack",
+  "Discord",
+  "Telegram",
+  "Google Chat",
+  "Microsoft Teams",
+  "PagerDuty",
+  "Email",
+  "Webhooks",
 ]
 
-const CHANNELS_B: { icon: IconSvgElement; name: string }[] = [
-  { icon: TelegramIcon, name: "Telegram" },
-  { icon: Notification03Icon, name: "PagerDuty" },
-  { icon: WebhookIcon, name: "Webhook" },
-  { icon: Mail01Icon, name: "Email" },
-]
-
-function ChannelPill({ icon, name }: { icon: IconSvgElement; name: string }) {
+function Eyebrow({
+  children,
+  dot = false,
+}: {
+  children: React.ReactNode
+  dot?: boolean
+}) {
   return (
-    <span className="inline-flex shrink-0 items-center gap-3 rounded-full border border-[var(--lk-line)] bg-[var(--lk-surface)] py-3.5 pr-6 pl-[19px] text-[1.05rem] font-medium whitespace-nowrap transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#d8d4cb] hover:shadow-[0_10px_26px_-18px_rgba(20,22,26,0.55)]">
-      <HugeiconsIcon
-        icon={icon}
-        size={23}
-        strokeWidth={1.7}
-        className="shrink-0 text-[var(--lk-ink-2)]"
-      />
-      {name}
+    <span className="inline-flex items-center gap-2 font-mono text-[11px] font-medium tracking-[0.14em] text-[var(--lk-ink-3)] uppercase">
+      {dot && (
+        <span className="size-[5px] rounded-full bg-[var(--lk-accent)]" />
+      )}
+      {children}
     </span>
+  )
+}
+
+function SectionHeader({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string
+  title: string
+  children?: React.ReactNode
+}) {
+  return (
+    <div className="max-w-[52ch]">
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h2 className="mt-4 text-[clamp(1.55rem,2.8vw,1.95rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
+        {title}
+      </h2>
+      {children && (
+        <p className="mt-3 text-[15px] leading-[1.6] text-[var(--lk-ink-2)]">
+          {children}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -171,78 +147,68 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SiteNav logoHref="#install" />
+      <SiteNav />
 
-      {/* ============ HERO (minimal) ============ */}
-      <header
-        id="install"
-        className="relative overflow-hidden border-b border-[var(--lk-line)]"
-      >
-        <div
-          aria-hidden
-          className="absolute inset-0 z-0 opacity-70 [background-image:radial-gradient(circle_at_1px_1px,color-mix(in_oklab,var(--lk-ink),transparent_92%)_1px,transparent_0)] [background-size:26px_26px] [mask-image:radial-gradient(ellipse_80%_70%_at_50%_0%,#000_30%,transparent_75%)] [-webkit-mask-image:radial-gradient(ellipse_80%_70%_at_50%_0%,#000_30%,transparent_75%)]"
-        />
-        <div className="relative z-10 mx-auto flex max-w-[1140px] flex-col items-center px-10 pt-[104px] pb-[110px] text-center max-[920px]:px-6 max-[560px]:pt-[72px] max-[560px]:pb-[78px]">
-          <Eyebrow>Open-source server monitoring</Eyebrow>
-          <h1 className="mt-[26px] max-w-[16ch] text-[clamp(2.6rem,5.6vw,4.3rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
-            Know the moment your server starts to{" "}
-            <span className="text-[var(--lk-accent-strong)]">struggle</span>.
+      {/* ============ HERO ============ */}
+      <header id="install">
+        <div className="mx-auto flex max-w-[1040px] flex-col items-center px-6 pt-28 pb-28 text-center max-[560px]:pt-20 max-[560px]:pb-20">
+          <Eyebrow dot>Open-source server monitoring</Eyebrow>
+          <h1 className="mt-6 max-w-[17ch] text-[clamp(2.4rem,5.6vw,3.8rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance">
+            Know the moment your server starts to struggle.
           </h1>
-          <p className="mt-6 max-w-[54ch] text-[clamp(1.05rem,1.6vw,1.22rem)] leading-[1.55] text-[var(--lk-ink-2)]">
+          <p className="mt-5 max-w-[52ch] text-[clamp(1rem,1.4vw,1.1rem)] leading-[1.6] text-[var(--lk-ink-2)]">
             Lookout watches memory, disk, CPU and your Docker containers — then
             pings you the second something crosses the line. One binary. No
             agents, no dashboards to babysit, no signup.
           </p>
 
-          <InstallCommand className="mt-[38px] w-[min(560px,100%)]" />
+          <InstallCommand className="mt-9 w-[min(540px,100%)]" />
 
-          <div className="mt-[22px] flex flex-wrap items-center justify-center gap-[18px] font-mono text-[12.5px] text-[var(--lk-ink-3)]">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-mono text-[12px] text-[var(--lk-ink-3)]">
             <span>MIT licensed</span>
-            <span className="size-1 rounded-full bg-[var(--lk-line)]" />
+            <span aria-hidden>·</span>
             <span>Single ~9MB binary</span>
-            <span className="size-1 rounded-full bg-[var(--lk-line)]" />
+            <span aria-hidden>·</span>
             <span>Linux · arm64 · amd64</span>
           </div>
 
-          <div className="mt-[34px] flex flex-wrap items-center justify-center gap-3.5">
-            <Button
-              variant="outline"
-              render={<a href={GITHUB_URL} />}
-              nativeButton={false}
+          <div className="mt-9 flex items-center gap-6 text-[14px]">
+            <a
+              href={GITHUB_URL}
+              className="text-[var(--lk-ink-2)] underline decoration-[var(--lk-line)] underline-offset-4 transition-colors hover:text-[var(--lk-ink)] hover:decoration-[var(--lk-ink-3)]"
             >
-              <HugeiconsIcon icon={Github01Icon} size={17} />
               Star on GitHub
-            </Button>
-            <Button variant="ghost" render={<a href="#how" />} nativeButton={false}>
-              How it works ↓
-            </Button>
+            </a>
+            <Link
+              href="/docs"
+              className="text-[var(--lk-ink-2)] underline decoration-[var(--lk-line)] underline-offset-4 transition-colors hover:text-[var(--lk-ink)] hover:decoration-[var(--lk-ink-3)]"
+            >
+              Read the docs
+            </Link>
           </div>
         </div>
       </header>
 
       {/* ============ FEATURES ============ */}
-      <section id="features" className="border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
-        <div className="mx-auto max-w-[1140px] px-10 max-[920px]:px-6">
-          <div className="max-w-[62ch]">
-            <Eyebrow>What it watches</Eyebrow>
-            <h2 className="mt-[18px] text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
-              Everything that takes a server down at 3am.
-            </h2>
-            <p className="mt-4 text-[1.1rem] text-[var(--lk-ink-2)]">
-              Lookout ships with the checks you&apos;d otherwise cobble together
-              from scripts and cron jobs — running out of the box, watching the
-              things that actually page you.
-            </p>
-          </div>
+      <section id="features" className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto max-w-[1040px] px-6 py-24 max-[560px]:py-16">
+          <SectionHeader
+            eyebrow="What it watches"
+            title="Everything that takes a server down at 3am."
+          >
+            The checks you&apos;d otherwise cobble together from scripts and
+            cron jobs — running out of the box, watching the things that
+            actually page you.
+          </SectionHeader>
 
-          <div className="mt-[54px] grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[var(--lk-line)] bg-[var(--lk-line)] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
+          <div className="mt-14 grid grid-cols-3 gap-x-10 gap-y-12 max-[860px]:grid-cols-2 max-[560px]:grid-cols-1 max-[560px]:gap-y-9">
             {FEATURES.map((f) => (
-              <div key={f.title} className="bg-[var(--lk-surface)] px-7 pt-[30px] pb-[34px]">
-                <div className="mb-5 grid size-[38px] place-items-center rounded-[10px] bg-[var(--lk-accent-tint)] text-[var(--lk-accent-strong)]">
-                  <HugeiconsIcon icon={f.icon} size={21} strokeWidth={1.8} />
-                </div>
-                <h3 className="text-[1.18rem] font-semibold tracking-[-0.02em]">{f.title}</h3>
-                <p className="mt-[9px] text-[0.97rem] leading-[1.55] text-[var(--lk-ink-2)]">
+              <div
+                key={f.title}
+                className="border-t border-[var(--lk-line)] pt-5"
+              >
+                <h3 className="text-[15px] font-medium">{f.title}</h3>
+                <p className="mt-2 text-[14px] leading-[1.6] text-[var(--lk-ink-2)]">
                   {f.body}
                 </p>
               </div>
@@ -252,53 +218,55 @@ export default function Page() {
       </section>
 
       {/* ============ HEARTBEAT / DEAD-MAN'S SWITCH ============ */}
-      <section id="heartbeat" className="border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
-        <div className="mx-auto grid max-w-[1140px] grid-cols-2 items-center gap-16 px-10 max-[920px]:grid-cols-1 max-[920px]:gap-10 max-[920px]:px-6">
+      <section id="heartbeat" className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto grid max-w-[1040px] grid-cols-2 items-center gap-16 px-6 py-24 max-[860px]:grid-cols-1 max-[860px]:gap-10 max-[560px]:py-16">
           <div>
-            <Eyebrow>Dead-man&apos;s switch</Eyebrow>
-            <h2 className="mt-[18px] text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
-              And when the whole box goes dark?
-            </h2>
-            <p className="mt-4 text-[1.1rem] leading-[1.55] text-[var(--lk-ink-2)]">
+            <SectionHeader
+              eyebrow="Dead-man's switch"
+              title="And when the whole box goes dark?"
+            >
               If the machine dies, the network drops, or Lookout itself stops,
               the agent can&apos;t send a thing. A hosted heartbeat monitor
               expects a regular ping — and tells you the moment one stops
               arriving.
-            </p>
-            <ol className="mt-6 space-y-2.5 text-[1rem] text-[var(--lk-ink-2)]">
+            </SectionHeader>
+            <ol className="mt-6 space-y-2.5 text-[14.5px] leading-[1.6] text-[var(--lk-ink-2)]">
               {[
                 "Create a heartbeat monitor in your dashboard.",
                 "Paste its ping URL into your Lookout config.",
                 "Get alerted the instant pings go silent — and again when they resume.",
               ].map((step, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-[var(--lk-accent-tint)] font-mono text-[11px] font-semibold text-[var(--lk-accent-strong)]">
-                    {i + 1}
+                  <span className="mt-px font-mono text-[12px] text-[var(--lk-ink-3)]">
+                    {i + 1}.
                   </span>
                   {step}
                 </li>
               ))}
             </ol>
-            <div className="mt-8 flex flex-wrap gap-3.5">
-              <Button render={<Link href="/dashboard" />} nativeButton={false}>
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              <Button
+                render={<Link href="/dashboard" />}
+                nativeButton={false}
+                className="bg-[var(--lk-ink)] text-white hover:bg-[color-mix(in_oklab,var(--lk-ink),#fff_14%)]"
+              >
                 Create a heartbeat monitor
               </Button>
-              <Button
-                variant="outline"
-                render={<Link href="/docs/heartbeat" />}
-                nativeButton={false}
+              <Link
+                href="/docs/heartbeat"
+                className="text-[14px] text-[var(--lk-ink-2)] underline decoration-[var(--lk-line)] underline-offset-4 transition-colors hover:text-[var(--lk-ink)] hover:decoration-[var(--lk-ink-3)]"
               >
                 Read the guide
-              </Button>
+              </Link>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-[#23262b] bg-[#0e1013] shadow-[0_24px_60px_-32px_rgba(20,22,26,0.7)]">
-            <div className="flex items-center gap-2 border-b border-[#23262b] px-4 py-3">
-              <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-              <span className="size-2.5 rounded-full bg-[#febc2e]" />
-              <span className="size-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-2 font-mono text-[11.5px] text-[#7d8590]">
+          <div className="overflow-hidden rounded-[10px] border border-[#26292e] bg-[#101214]">
+            <div className="flex items-center gap-1.5 border-b border-[#26292e] px-4 py-2.5">
+              <span className="size-2 rounded-full bg-[#3a3e44]" />
+              <span className="size-2 rounded-full bg-[#3a3e44]" />
+              <span className="size-2 rounded-full bg-[#3a3e44]" />
+              <span className="ml-2 font-mono text-[11px] text-[#7d8590]">
                 /etc/lookout/config.yaml
               </span>
             </div>
@@ -319,79 +287,59 @@ export default function Page() {
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
-      <section id="how" className="border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
-        <div className="mx-auto max-w-[1140px] px-10 max-[920px]:px-6">
-          <div className="max-w-[62ch]">
-            <Eyebrow>How it works</Eyebrow>
-            <h2 className="mt-[18px] text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
-              Up and running in one command.
-            </h2>
-            <p className="mt-4 text-[1.1rem] text-[var(--lk-ink-2)]">
-              No control plane to deploy, no time-series database to feed.
-              Install the binary, point it at what matters, and get out of the
-              way.
-            </p>
-          </div>
+      <section id="how" className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto max-w-[1040px] px-6 py-24 max-[560px]:py-16">
+          <SectionHeader eyebrow="How it works" title="Up and running in one command.">
+            No control plane to deploy, no time-series database to feed.
+            Install the binary, point it at what matters, and get out of the
+            way.
+          </SectionHeader>
 
-          <div className="relative mt-[72px] grid grid-cols-3 gap-12 max-[920px]:grid-cols-1 max-[920px]:gap-11">
-            <div className="absolute top-7 right-[16.66%] left-[16.66%] z-0 h-0.5 [background-image:linear-gradient(90deg,var(--lk-line)_55%,transparent_0)] [background-size:13px_2px] max-[920px]:hidden" />
+          <div className="mt-14 grid grid-cols-3 gap-x-10 gap-y-12 max-[860px]:grid-cols-1 max-[860px]:gap-y-9">
             {STEPS.map((s) => (
-              <div key={s.num} className="lk-step relative z-10 flex flex-col items-center text-center">
-                <div className="lk-badge grid size-14 place-items-center rounded-full border-[1.5px] border-[var(--lk-line)] bg-[var(--lk-surface)] text-[var(--lk-accent-strong)] shadow-[0_0_0_7px_var(--lk-bg),0_10px_24px_-16px_rgba(20,22,26,0.4)] transition-colors duration-200">
-                  <HugeiconsIcon
-                    icon={s.icon}
-                    size={24}
-                    strokeWidth={1.7}
-                    className={`lk-ic lk-ic-${s.anim}`}
-                  />
-                </div>
-                <span className="mt-6 font-mono text-[11.5px] font-medium tracking-[0.16em] text-[var(--lk-accent-strong)] uppercase">
+              <div key={s.num} className="border-t border-[var(--lk-line)] pt-5">
+                <span className="font-mono text-[12px] text-[var(--lk-ink-3)]">
                   {s.num}
                 </span>
-                <h3 className="mt-[11px] text-[1.32rem] font-semibold tracking-[-0.02em]">{s.title}</h3>
-                <p className="mt-3 max-w-[30ch] text-[1rem] leading-[1.55] text-[var(--lk-ink-2)]">
+                <h3 className="mt-3 text-[15px] font-medium">{s.title}</h3>
+                <p className="mt-2 text-[14px] leading-[1.6] text-[var(--lk-ink-2)]">
                   {s.body}
                 </p>
               </div>
             ))}
           </div>
-
-          <div className="mt-16 flex justify-center">
-            <InstallCommand className="w-[min(560px,100%)]" />
-          </div>
         </div>
       </section>
 
       {/* ============ ALERT CHANNELS ============ */}
-      <section id="alerts" className="overflow-hidden border-b border-[var(--lk-line)] py-[104px] max-[560px]:py-[76px]">
-        <div className="mx-auto max-w-[1140px] px-10 max-[920px]:px-6">
-          <div className="max-w-[62ch]">
-            <Eyebrow>Where alerts land</Eyebrow>
-            <h2 className="mt-[18px] text-[clamp(1.9rem,3.4vw,2.7rem)] leading-[1.05] font-semibold tracking-[-0.02em]">
-              Get told where you&apos;ll actually see it.
-            </h2>
-            <p className="mt-4 text-[1.1rem] text-[var(--lk-ink-2)]">
-              Route every alert to the place your team already lives. Mix and
-              match as many channels as you like.
-            </p>
+      <section id="alerts" className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto max-w-[1040px] px-6 py-24 max-[560px]:py-16">
+          <SectionHeader
+            eyebrow="Where alerts land"
+            title="Get told where you'll actually see it."
+          >
+            Route every alert to the place your team already lives. Mix and
+            match as many channels as you like.
+          </SectionHeader>
+
+          <div className="mt-14 grid grid-cols-4 gap-x-10 gap-y-9 max-[860px]:grid-cols-2">
+            {CHANNELS.map((name, i) => (
+              <div
+                key={name}
+                className="flex items-baseline justify-between gap-4 border-t border-[var(--lk-line)] pt-4"
+              >
+                <span className="text-[14.5px] font-medium">{name}</span>
+                <span className="font-mono text-[12px] text-[var(--lk-ink-3)]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+            ))}
           </div>
 
-          <div className="lk-marquee mt-[46px] flex flex-col gap-[18px] py-4">
-            <div className="lk-mq-row">
-              {[...CHANNELS_A, ...CHANNELS_A].map((c, i) => (
-                <ChannelPill key={`a-${i}`} {...c} />
-              ))}
-            </div>
-            <div className="lk-mq-row rev">
-              {[...CHANNELS_B, ...CHANNELS_B].map((c, i) => (
-                <ChannelPill key={`b-${i}`} {...c} />
-              ))}
-            </div>
-          </div>
-
-          <p className="mt-12 text-center text-[1rem] text-[var(--lk-ink-3)]">
-            Eight destinations built in — and anything else you can reach with a{" "}
-            <code className="rounded-[5px] bg-[var(--lk-line-2)] px-[7px] py-0.5 font-mono text-[0.85rem] text-[var(--lk-ink-2)]">
+          <p className="mt-10 text-[14px] text-[var(--lk-ink-3)]">
+            Eight destinations built in — and anything else you can reach with
+            a{" "}
+            <code className="rounded-[4px] bg-[var(--lk-line-2)] px-1.5 py-0.5 font-mono text-[12.5px] text-[var(--lk-ink-2)]">
               POST
             </code>
             .
@@ -400,103 +348,63 @@ export default function Page() {
       </section>
 
       {/* ============ CTA ============ */}
-      <section className="border-b border-[var(--lk-line)] bg-[var(--lk-ink)] text-white">
-        <div className="mx-auto flex max-w-[1140px] flex-col items-center px-10 py-24 text-center max-[920px]:px-6">
-          <LookoutLogo reversed href="#install" className="mb-[26px]" style={{ fontSize: 30 }} />
-          <span className="inline-flex items-center gap-2.5 font-mono text-[12.5px] font-medium tracking-[0.12em] text-white/60 uppercase">
-            <span className="size-[7px] rounded-full bg-[var(--lk-accent)] shadow-[0_0_0_4px_color-mix(in_oklab,var(--lk-accent),transparent_78%)]" />
-            Free &amp; open source
-          </span>
-          <h2 className="mt-[18px] max-w-[18ch] text-[clamp(2rem,3.6vw,3rem)] leading-[1.05] font-semibold tracking-[-0.02em] text-white">
+      <section className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto flex max-w-[1040px] flex-col items-center px-6 py-24 text-center max-[560px]:py-16">
+          <Eyebrow dot>Free &amp; open source</Eyebrow>
+          <h2 className="mt-4 max-w-[22ch] text-[clamp(1.7rem,3.2vw,2.3rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance">
             Start watching your server in 30 seconds.
           </h2>
-          <p className="mt-[18px] max-w-[50ch] text-[1.12rem] text-white/[0.62]">
+          <p className="mt-4 max-w-[46ch] text-[15px] leading-[1.6] text-[var(--lk-ink-2)]">
             One command on the box you want to keep alive. Star it on GitHub if
             it saves your weekend.
           </p>
 
-          <InstallCommand className="mt-9 w-[min(620px,100%)] border-[#262a30] bg-[#0e1013]" />
+          <InstallCommand className="mt-8 w-[min(540px,100%)]" />
 
-          <div className="mt-6 flex flex-wrap justify-center gap-3.5">
-            <Button render={<a href={GITHUB_URL} />} nativeButton={false}>
-              <HugeiconsIcon icon={Github01Icon} size={17} />
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-5">
+            <Button
+              render={<a href={GITHUB_URL} />}
+              nativeButton={false}
+              className="bg-[var(--lk-ink)] text-white hover:bg-[color-mix(in_oklab,var(--lk-ink),#fff_14%)]"
+            >
               View on GitHub
             </Button>
-            <Button
-              variant="outline"
-              render={<Link href="/docs" />}
-              nativeButton={false}
-              className="border-white/20 bg-transparent text-white hover:border-white/35 hover:bg-white/[0.07] hover:text-white dark:border-white/20 dark:bg-transparent dark:hover:bg-white/[0.07]"
+            <Link
+              href="/docs"
+              className="text-[14px] text-[var(--lk-ink-2)] underline decoration-[var(--lk-line)] underline-offset-4 transition-colors hover:text-[var(--lk-ink)] hover:decoration-[var(--lk-ink-3)]"
             >
               Read the docs
-            </Button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ============ FOOTER ============ */}
-      <footer className="pt-16 pb-12">
-        <div className="mx-auto max-w-[1140px] px-10 max-[920px]:px-6">
-          <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] gap-10 border-b border-[var(--lk-line)] pb-12 max-[920px]:grid-cols-2 max-[920px]:gap-[34px]">
-            <div className="max-[920px]:col-span-full">
-              <LookoutLogo href="#install" className="mb-4" />
-              <p className="max-w-[30ch] text-[0.95rem] text-[var(--lk-ink-2)]">
-                Lightweight, open-source monitoring that pings you before things
-                break. Built for people who run their own servers.
-              </p>
-            </div>
-            {[
-              {
-                head: "Product",
-                links: [
-                  ["Features", "#features"],
-                  ["How it works", "#how"],
-                  ["Alert channels", "#alerts"],
-                  ["Heartbeat monitor", "/docs/heartbeat"],
-                ],
-              },
-              {
-                head: "Resources",
-                links: [
-                  ["Documentation", "/docs"],
-                  ["Releases", `${GITHUB_URL}/releases`],
-                  ["Issues", `${GITHUB_URL}/issues`],
-                ],
-              },
-              {
-                head: "Project",
-                links: [
-                  ["GitHub", GITHUB_URL],
-                  ["MIT License", `${GITHUB_URL}/blob/main/LICENSE`],
-                  ["Changelog", GITHUB_URL],
-                ],
-              },
-            ].map((col) => (
-              <div key={col.head}>
-                <h4 className="mb-4 font-mono text-[11.5px] font-medium tracking-[0.12em] text-[var(--lk-ink-3)] uppercase">
-                  {col.head}
-                </h4>
-                <ul className="flex flex-col gap-[11px]">
-                  {col.links.map(([label, href]) => {
-                    const Component = href.startsWith("/") ? Link : "a"
-                    return (
-                      <li key={label}>
-                        <Component
-                          href={href}
-                          className="text-[0.95rem] text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
-                        >
-                          {label}
-                        </Component>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-3.5 pt-7 font-mono text-[0.88rem] text-[var(--lk-ink-3)]">
-            <span>© 2026 Lookout · MIT Licensed</span>
-            <span>Built for people who run their own servers.</span>
+      <footer className="border-t border-[var(--lk-line)]">
+        <div className="mx-auto flex max-w-[1040px] flex-wrap items-center justify-between gap-x-8 gap-y-4 px-6 py-9">
+          <span className="font-mono text-[12px] text-[var(--lk-ink-3)]">
+            © 2026 Lookout · MIT licensed
+          </span>
+          <div className="flex flex-wrap items-center gap-6 text-[13.5px]">
+            {(
+              [
+                ["Docs", "/docs"],
+                ["GitHub", GITHUB_URL],
+                ["Releases", `${GITHUB_URL}/releases`],
+                ["Issues", `${GITHUB_URL}/issues`],
+              ] as const
+            ).map(([label, href]) => {
+              const Component = href.startsWith("/") ? Link : "a"
+              return (
+                <Component
+                  key={label}
+                  href={href}
+                  className="text-[var(--lk-ink-2)] transition-colors hover:text-[var(--lk-ink)]"
+                >
+                  {label}
+                </Component>
+              )
+            })}
           </div>
         </div>
       </footer>
